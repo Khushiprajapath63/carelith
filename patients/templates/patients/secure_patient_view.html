@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Secure Patient View</h3>
+
+<p><strong>Name:</strong> {{ patient.user.username }}</p>
+<p><strong>Access valid till:</strong> {{ access.expires_at }}</p>
+
+<p class="text-success">
+    Access granted via OTP verification
+</p>
+
+{% endblock %}

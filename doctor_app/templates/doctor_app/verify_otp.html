@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Verify OTP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height:70vh;">
+
+    <form method="POST"
+          class="card p-4 shadow"
+          style="width:320px;">
+        {% csrf_token %}
+
+        <h4 class="text-center mb-3">Enter OTP</h4>
+
+        <input type="text"
+               name="otp"
+               class="form-control mb-3"
+               placeholder="6-digit OTP"
+               required>
+
+        <button type="submit"
+                class="btn btn-primary w-100">
+            Verify
+        </button>
+
+        <p class="text-center text-muted mt-3">
+            OTP valid for 10 minutes
+        </p>
+    </form>
+
+</div>
+
+{% endblock %}

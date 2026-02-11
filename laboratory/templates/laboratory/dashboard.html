@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Laboratory Dashboard{% endblock %}
+
+{% block content %}
+
+<h2>Laboratory: {{ lab.lab_name }}</h2>
+
+<hr>
+
+<h4>Upload New Report</h4>
+
+<form method="post" enctype="multipart/form-data" class="mb-4">
+    {% csrf_token %}
+
+    <div class="mb-2">
+        <label>Patient</label>
+        <select name="patient" class="form-control">
+            {% for p in patients %}
+            <option value="{{ p.id }}">
+                {{ p.user.username }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-2">
+        <label>Report Title</label>
+        <input type="text" name="title" class="form-control" required>
+    </div>
+
+    <div class="mb-2">
+        <label>Upload File</label>
+        <input type="file" name="file" class="form-control" required>
+    </div>
+
+    <button class="btn btn-primary mt-2">Upload Report</button>
+</form>
+
+<hr>
+
+<h4>Uploaded Reports</h4>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Patient</th>
+        <th>Title</th>
+        <th>File</th>
+        <th>Date</th>
+    </tr>
+
+    {% for r in reports %}
+    <tr>
+        <td>{{ r.patient.user.username }}</td>
+        <td>{{ r.title }}</td>
+        <td><a href="{{ r.file.url }}" target="_blank">View</a></td>
+        <td>{{ r.uploaded_at }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">No reports uploaded</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

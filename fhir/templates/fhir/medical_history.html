@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}FHIR Medical History{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-4">📜 Previous Medical History (FHIR)</h3>
+
+{% for enc in encounters %}
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+        <h5>
+            🏥 Encounter #{{ enc.id }}
+        </h5>
+
+        <p class="text-muted">
+            Hospital: {{ enc.hospital.name }} <br>
+            Reason: {{ enc.reason }} <br>
+            Date: {{ enc.started_at }}
+        </p>
+
+        <hr>
+
+        <h6>🧪 Observations</h6>
+
+        {% if enc.observations.all %}
+            <ul class="list-group">
+                {% for obs in enc.observations.all %}
+                <li class="list-group-item">
+                    <strong>{{ obs.code }}</strong> :
+                    {{ obs.value }} {{ obs.unit }}
+                    <br>
+                    <small class="text-muted">
+                        Recorded by Dr. {{ obs.doctor.user.username }}
+                    </small>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No observations</p>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

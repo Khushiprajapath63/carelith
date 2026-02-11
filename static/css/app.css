@@ -1,0 +1,16 @@
+body {
+    font-family: "Segoe UI", sans-serif;
+}
+
+.card {
+    border-radius: 14px;
+}
+
+.accordion-button {
+    font-weight: 600;
+}
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 8px;
+}

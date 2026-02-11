@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Patient Dashboard{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Welcome {{ patient.user.get_full_name|default:patient.user.username }}
+</h2>
+
+<!-- SUMMARY CARDS -->
+<div class="row mb-4">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6>Appointments</h6>
+                <h3>{{ appointments.count }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6>Reports</h6>
+                <h3>{{ reports.count }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6>Prescriptions</h6>
+                <h3>{{ prescriptions.count }}</h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ACCORDION -->
+<div class="accordion" id="patientAccordion">
+
+    <!-- APPOINTMENTS -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#appointments">
+                Appointments
+            </button>
+        </h2>
+        <div id="appointments" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                {% if appointments %}
+                    <ul class="list-group">
+                        {% for a in appointments %}
+                        <li class="list-group-item">
+                            <strong>Doctor:</strong> Dr. {{ a.doctor.user.username }} <br>
+                            <strong>Date:</strong> {{ a.date }} <br>
+                            <strong>Status:</strong> {{ a.status }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No appointments</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+ <!-- REPORTS -->
+<div class="accordion-item">
+    <h2 class="accordion-header">
+        <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#reports">
+            Reports
+        </button>
+    </h2>
+
+    <div id="reports" class="accordion-collapse collapse">
+        <div class="accordion-body">
+
+            {% if reports %}
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Laboratory</th>
+                        <th>Doctor</th>
+                        <th>Title</th>
+                        <th>Report</th>
+                        <th>Doctor Explanation</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in reports %}
+                    <tr>
+                        <!-- LAB DETAILS -->
+                        <td>
+                            {% if r.laboratory %}
+                                <strong>{{ r.laboratory.name }}</strong><br>
+                                <small class="text-muted">
+                                    {{ r.laboratory.location }}
+                                </small>
+                            {% else %}
+                                <span class="text-danger">Not assigned</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- DOCTOR -->
+                        <td>
+                            {% if r.doctor %}
+                                Dr. {{ r.doctor.user.username }}
+                            {% else %}
+                                <span class="text-muted">Pending</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- TITLE -->
+                        <td>{{ r.title }}</td>
+
+                        <!-- FILE -->
+                        <td>
+                            <a href="{{ r.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+
+                        <!-- DOCTOR NOTES -->
+                        <td>
+                            {% if r.doctor_notes %}
+                                {{ r.doctor_notes }}
+                            {% else %}
+                                <span class="text-muted">Pending explanation</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+                <p>No reports available</p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+
+    <!-- PRESCRIPTIONS -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#prescriptions">
+                Prescriptions
+            </button>
+        </h2>
+        <div id="prescriptions" class="accordion-collapse collapse">
+            <div class="accordion-body">
+
+                {% if prescriptions %}
+                    {% for p in prescriptions %}
+                    <div class="border p-3 mb-3">
+                        <strong>Doctor:</strong> Dr. {{ p.doctor.user.username }} <br>
+                        <strong>Medicines:</strong>
+                        <div class="mt-2">
+                            {{ p.medicines|linebreaks }}
+                        </div>
+                        {% if p.notes %}
+                        <strong>Notes:</strong>
+                        <div class="mt-1">
+                            {{ p.notes|linebreaks }}
+                        </div>
+                        {% endif %}
+                        <small class="text-muted">
+                            {{ p.created_at }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No prescriptions</p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
