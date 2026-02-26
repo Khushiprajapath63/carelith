@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .models import Patient, Appointment
 from records.models import Report, Prescription
@@ -16,17 +17,14 @@ def patient_dashboard(request):
     except Patient.DoesNotExist:
         return render(request, 'errors/not_a_patient.html')
 
-    # Patient appointments
     appointments = Appointment.objects.filter(
         patient=patient
     ).order_by('-date')
 
-    # Patient reports
     reports = Report.objects.filter(
         patient=patient
     ).order_by('-id')
 
-    # ✅ FIXED: filter prescriptions via encounter
     prescriptions = Prescription.objects.filter(
         encounter__patient=patient
     ).order_by('-id')
@@ -42,9 +40,10 @@ def patient_dashboard(request):
 @login_required
 def secure_patient_view(request, access_id):
     """
-    Access-controlled patient view
+    Secure patient page (patient can view their granted access details)
     URL: /patients/secure/<access_id>/
     """
+
     try:
         patient = Patient.objects.get(user=request.user)
     except Patient.DoesNotExist:
@@ -54,7 +53,8 @@ def secure_patient_view(request, access_id):
         PatientAccess,
         id=access_id,
         patient=patient,
-        is_active=True
+        is_verified=True,
+        expires_at__gt=timezone.now()
     )
 
     return render(request, 'patients/secure_patient_page.html', {

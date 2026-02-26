@@ -14,6 +14,13 @@ class Patient(models.Model):
         on_delete=models.CASCADE,
         related_name='patient_profile'
     )
+    hospital = models.ForeignKey(
+        "hospital_app.Hospital",
+         on_delete=models.CASCADE,
+         null=True,
+         blank=True
+    )
+    fhir_patient_id = models.CharField(max_length=200, unique=True, null=True, blank=True)
 
     gender = models.CharField(
         max_length=1,

@@ -100,7 +100,6 @@ class Report(models.Model):
         related_name="reports"
     )
 
-    # ✅ KEEP NULL=True for SQLite safety
     laboratory = models.ForeignKey(
         Laboratory,
         on_delete=models.PROTECT,
@@ -118,10 +117,11 @@ class Report(models.Model):
         default="pending"
     )
 
-    created_at = models.DateTimeField(
-        null=True,          # IMPORTANT for existing rows
-        blank=True
-    )
+    # ✅ FIX: so it doesn't crash in admin
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # optional created_at (your previous field)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"Report: {self.title} ({self.patient})"
@@ -139,20 +139,49 @@ class Prescription(models.Model):
         blank=True
     )
 
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="prescriptions"
+    )
+
     doctor = models.ForeignKey(
         Doctor,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="prescriptions"
+    )
+
+    hospital = models.ForeignKey(
+        Hospital,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="prescriptions"
     )
 
     medicines = models.TextField()
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    @property
-    def patient(self):
-        return self.encounter.patient if self.encounter else None
+    def save(self, *args, **kwargs):
+        if self.encounter:
+            if not self.patient:
+                self.patient = self.encounter.patient
+
+            if not self.doctor and self.encounter.doctor:
+                self.doctor = self.encounter.doctor
+
+            if not self.hospital and self.encounter.hospital:
+                self.hospital = self.encounter.hospital
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Prescription - {self.patient}"
+        if self.patient:
+            return f"Prescription for {self.patient.user.username}"
+        return f"Prescription #{self.id}"

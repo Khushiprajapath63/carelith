@@ -1,0 +1,589 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FHIR Records - {{ patient.user.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #f0f4ff; font-family: 'Segoe UI', Arial, sans-serif; }
+
+    /* ── TOP HEADER ── */
+    .page-header {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        color: white;
+        padding: 20px 28px;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+        margin-bottom: 24px;
+    }
+    .page-header h3 { margin: 0; font-weight: 700; font-size: 22px; }
+    .page-header small { opacity: 0.85; font-size: 13px; }
+
+    /* ── INFO CARDS ── */
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        padding: 22px 26px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        margin-bottom: 20px;
+        border-left: 5px solid #0d6efd;
+    }
+    .info-card h5 {
+        font-weight: 700;
+        color: #0d6efd;
+        margin-bottom: 14px;
+        font-size: 16px;
+        border-bottom: 1px solid #e8f0ff;
+        padding-bottom: 8px;
+    }
+    .info-row { display: flex; flex-wrap: wrap; gap: 18px; }
+    .info-item { flex: 1; min-width: 180px; }
+    .info-item label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 3px;
+    }
+    .info-item span {
+        font-size: 14px;
+        font-weight: 600;
+        color: #212529;
+    }
+    .badge-fhir {
+        background: #e8f0ff;
+        color: #0d6efd;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* ── TABS ── */
+    .tab-wrapper {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .nav-tabs {
+        border-bottom: 2px solid #e8f0ff;
+        padding: 0 20px;
+        background: #f8faff;
+    }
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 14px 20px;
+        border-radius: 0;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+    .nav-tabs .nav-link:hover { color: #0d6efd; background: none; }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        border-bottom: 3px solid #0d6efd;
+        background: none;
+    }
+    .tab-content { padding: 24px; }
+
+    /* ── UPLOAD SECTION ── */
+    .upload-zone {
+        border: 2px dashed #c5d5ff;
+        border-radius: 12px;
+        padding: 28px;
+        text-align: center;
+        background: #f8faff;
+        transition: 0.2s;
+    }
+    .upload-zone:hover { border-color: #0d6efd; background: #f0f4ff; }
+    .upload-zone .upload-icon { font-size: 36px; margin-bottom: 10px; }
+    .upload-zone p { color: #6c757d; font-size: 13px; margin: 0; }
+
+    /* ── REPORT TABLE ── */
+    .reports-table { border-collapse: separate; border-spacing: 0; width: 100%; }
+    .reports-table thead th {
+        background: #f0f4ff;
+        color: #495057;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 16px;
+        border-bottom: 2px solid #dee2f0;
+    }
+    .reports-table tbody tr {
+        border-bottom: 1px solid #f0f4ff;
+        transition: background 0.15s;
+    }
+    .reports-table tbody tr:hover { background: #f8faff; }
+    .reports-table tbody td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
+    .reports-table tbody tr:last-child td { border-bottom: none; }
+
+    /* ── BADGES ── */
+    .badge-hospital {
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .badge-current {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .badge-secure {
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .badge-pdf { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-img { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-json { background: #f3e8ff; color: #6b21a8; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #9ca3af;
+    }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 15px; margin: 0; }
+
+    /* ── ALERT NOTE ── */
+    .note-box {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 13px;
+        color: #1e40af;
+        margin-top: 16px;
+    }
+
+    /* ── QUALIFICATION TAG ── */
+    .qual-tag {
+        display: inline-block;
+        background: #f0f4ff;
+        color: #0d6efd;
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3" style="max-width: 1100px; margin: auto;">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h3>📋 FHIR Medical Records</h3>
+            <small>Patient: <b>{{ patient.user.username }}</b> &nbsp;|&nbsp; Date: {{ current_time|date:"d M Y" }} &nbsp;|&nbsp; Time: {{ current_time|time:"h:i A" }}</small>
+        </div>
+        <a href="{% url 'doctor_app:doctor_dashboard' %}" class="btn btn-light fw-bold" style="border-radius:10px;">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row g-3 mb-3">
+
+        <!-- DOCTOR DETAILS -->
+        <div class="col-md-6">
+            <div class="info-card h-100">
+                <h5>👨‍⚕️ Doctor Details</h5>
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Name</label>
+                        <span>Dr. {{ doctor.user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Specialization</label>
+                        <span>{{ doctor.specialization|default:"—" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Qualifications</label>
+                        <div class="mt-1">
+                            {% if doctor.qualification %}
+                                {% for q in doctor.qualification.split|join:"," %}
+                                    <span class="qual-tag">{{ q }}</span>
+                                {% endfor %}
+                                <span class="qual-tag">{{ doctor.qualification }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label>Hospital</label>
+                        <span>{{ doctor.hospital.name|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PATIENT DETAILS -->
+        <div class="col-md-6">
+            <div class="info-card h-100">
+                <h5>🧑 Patient Details</h5>
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Name</label>
+                        <span>{{ patient.user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Patient ID</label>
+                        <span>{{ patient.id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>FHIR Patient ID</label>
+                        <span class="badge-fhir">{{ patient.fhir_patient_id|default:"Not Assigned" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Gender</label>
+                        <span>{{ patient.gender|default:"—"|capfirst }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Age</label>
+                        <span>{{ patient.age|default:"—" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Hospital</label>
+                        <span>{{ patient.hospital.name|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS SECTION -->
+    <div class="tab-wrapper">
+        <ul class="nav nav-tabs" id="fhirTabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-all">
+                    📂 All Records
+                    {% if fhir_data and fhir_data.entry %}
+                        <span class="badge bg-primary ms-1" style="font-size:11px;">{{ fhir_data.entry|length }}</span>
+                    {% endif %}
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mine">
+                    👨‍⚕️ My Reports
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-other">
+                    🏥 Other Hospitals
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload">
+                    ⬆️ Upload Report
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="fhirTabContent">
+
+            <!-- ── TAB 1: ALL RECORDS ── -->
+            <div class="tab-pane fade show active" id="tab-all">
+                {% if fhir_data and fhir_data.entry %}
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Description</th>
+                                <th>Uploaded By</th>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in fhir_data.entry %}
+                            {% with resource=entry.resource %}
+                            <tr>
+                                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+
+                                <td>
+                                    <b style="font-size:14px;">{{ resource.description|default:"Medical Report" }}</b>
+                                </td>
+
+                                <td>
+                                    {% if resource.author %}
+                                        {% for author in resource.author %}
+                                            <span style="font-size:13px;">{{ author.display|default:"Unknown" }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">Unknown</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resource.content %}
+                                        {% for c in resource.content %}
+                                            {% with ct=c.attachment.contentType %}
+                                                {% if ct == "application/pdf" %}
+                                                    <span class="badge-pdf">PDF</span>
+                                                {% elif ct == "application/json" %}
+                                                    <span class="badge-json">JSON</span>
+                                                {% elif "image" in ct %}
+                                                    <span class="badge-img">IMAGE</span>
+                                                {% else %}
+                                                    <span class="badge-secure">{{ ct|default:"N/A" }}</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resource.description %}
+                                        {% if doctor.user.username in resource.description %}
+                                            <span class="badge-current">✓ This Doctor</span>
+                                        {% else %}
+                                            <span class="badge-hospital">🏥 Other Hospital</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resource.content %}
+                                        {% for c in resource.content %}
+                                            {% if c.attachment.url %}
+                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">
+                                                    View
+                                                </a>
+                                            {% else %}
+                                                <span class="badge-secure">Stored Securely</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endwith %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>No FHIR records found for this patient.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- ── TAB 2: MY REPORTS ── -->
+            <div class="tab-pane fade" id="tab-mine">
+                {% if fhir_data and fhir_data.entry %}
+                    {% with has_mine=False %}
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in fhir_data.entry %}
+                            {% with resource=entry.resource %}
+                            {% if doctor.user.username in resource.description %}
+                            <tr>
+                                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+                                <td><b>{{ resource.description|default:"Medical Report" }}</b></td>
+                                <td>
+                                    {% if resource.content %}
+                                        {% for c in resource.content %}
+                                            {% with ct=c.attachment.contentType %}
+                                                {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
+                                                {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
+                                                {% else %}<span class="badge-secure">{{ ct|default:"N/A" }}</span>{% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if resource.content %}
+                                        {% for c in resource.content %}
+                                            {% if c.attachment.url %}
+                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">View</a>
+                                            {% else %}
+                                                <span class="badge-secure">Stored Securely</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endwith %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p>You haven't uploaded any reports for this patient yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- ── TAB 3: OTHER HOSPITALS ── -->
+            <div class="tab-pane fade" id="tab-other">
+                {% if fhir_data and fhir_data.entry %}
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Description</th>
+                                <th>Uploaded By</th>
+                                <th>Type</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in fhir_data.entry %}
+                            {% with resource=entry.resource %}
+                            {% if doctor.user.username not in resource.description %}
+                            <tr>
+                                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+                                <td>
+                                    <b>{{ resource.description|default:"Medical Report" }}</b>
+                                    <div style="margin-top:4px;"><span class="badge-hospital">🏥 External Record</span></div>
+                                </td>
+                                <td>
+                                    {% if resource.author %}
+                                        {% for author in resource.author %}
+                                            <span style="font-size:13px;">{{ author.display|default:"Unknown" }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">Unknown</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if resource.content %}
+                                        {% for c in resource.content %}
+                                            {% with ct=c.attachment.contentType %}
+                                                {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
+                                                {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
+                                                {% else %}<span class="badge-secure">{{ ct|default:"N/A" }}</span>{% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if resource.content %}
+                                        {% for c in resource.content %}
+                                            {% if c.attachment.url %}
+                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">View</a>
+                                            {% else %}
+                                                <span class="badge-secure">Stored Securely</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="note-box mt-3">
+                        ℹ️ <b>Note:</b> Reports from other hospitals are view-only. Download is restricted per hospital privacy policy.
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">🏥</div>
+                        <p>No records from other hospitals found.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- ── TAB 4: UPLOAD ── -->
+            <div class="tab-pane fade" id="tab-upload">
+                <form method="POST" enctype="multipart/form-data" action="{% url 'doctor_app:upload_patient_report_to_fhir' patient.id %}">
+                    {% csrf_token %}
+                    <div class="upload-zone" onclick="document.getElementById('reportFile').click();" style="cursor:pointer;">
+                        <div class="upload-icon">📤</div>
+                        <h6 style="font-weight:700; color:#374151;">Click to Select a File</h6>
+                        <p>Allowed formats: PDF / JPG / PNG / JSON</p>
+                        <p id="fileName" style="color:#0d6efd; font-weight:600; margin-top:8px;"></p>
+                    </div>
+                    <input type="file" id="reportFile" name="report" accept=".pdf,.jpg,.jpeg,.png,.json" style="display:none;"
+                           onchange="document.getElementById('fileName').textContent = this.files[0]?.name || ''">
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4" style="border-radius:10px; font-weight:700;">
+                            ⬆️ Upload to FHIR
+                        </button>
+                        <span style="font-size:12px; color:#9ca3af; align-self:center;">
+                            This report will be stored securely in the FHIR server
+                        </span>
+                    </div>
+                </form>
+
+                {% if messages %}
+                    <div class="mt-3">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" style="border-radius:10px;">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+        </div><!-- end tab-content -->
+    </div><!-- end tab-wrapper -->
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Persist active tab across page reloads
+    const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+    const savedTab = localStorage.getItem('fhirActiveTab');
+    if (savedTab) {
+        const tab = document.querySelector(`[data-bs-target="${savedTab}"]`);
+        if (tab) { new bootstrap.Tab(tab).show(); }
+    }
+    tabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', e => {
+            localStorage.setItem('fhirActiveTab', e.target.getAttribute('data-bs-target'));
+        });
+    });
+
+    // Auto-switch to upload tab if no records
+    {% if not fhir_data or not fhir_data.entry %}
+    // stay on all records tab showing empty state
+    {% endif %}
+</script>
+{% endblock %}

@@ -9,8 +9,22 @@
     <div class="card shadow-sm">
         <div class="card-body">
 
-            <p><strong>Report:</strong> {{ report.title }}</p>
+            <p><strong>Report:</strong>
+                {% if report.test_name %}
+                    {{ report.test_name }}
+                {% else %}
+                    —
+                {% endif %}
+            </p>
+
             <p><strong>Patient:</strong> {{ report.patient.user.username }}</p>
+
+            {% if report.file %}
+                <p>
+                    <strong>File:</strong>
+                    <a href="{{ report.file.url }}" target="_blank">View Report</a>
+                </p>
+            {% endif %}
 
             <form method="post">
                 {% csrf_token %}
@@ -28,7 +42,7 @@
                     Save Explanation
                 </button>
 
-                <a href="{% url 'doctor_dashboard' %}"
+                <a href="{% url 'doctor_app:doctor_dashboard' %}"
                    class="btn btn-secondary ms-2">
                     Cancel
                 </a>

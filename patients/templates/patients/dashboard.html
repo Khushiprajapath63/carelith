@@ -3,187 +3,572 @@
 
 {% block content %}
 
-<h2 class="mb-4">
-    Welcome {{ patient.user.get_full_name|default:patient.user.username }}
-</h2>
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f8ff, #eef4ff);
+    }
 
-<!-- SUMMARY CARDS -->
-<div class="row mb-4">
+    .topbar {
+        background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+        padding: 18px 22px;
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.15);
+    }
 
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
+    .topbar h4 {
+        margin: 0;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-card {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 18px;
+        padding: 20px 26px;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.10);
+        border: 1px solid rgba(255,255,255,0.6);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .profile-card h5 {
+        font-weight: 800;
+        color: #0d6efd;
+        margin-bottom: 3px;
+    }
+
+    .profile-card small {
+        font-size: 13px;
+        color: gray;
+    }
+
+    .profile-meta span {
+        display: inline-block;
+        background: #f0f4ff;
+        color: #0d6efd;
+        border-radius: 8px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 2px;
+    }
+
+    .stats-card {
+        border-radius: 18px;
+        border: none;
+        padding: 22px;
+        box-shadow: 0px 6px 16px rgba(0,0,0,0.10);
+        transition: 0.25s;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(8px);
+        text-align: center;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .stats-card h2 {
+        font-weight: 900;
+        color: #0d6efd;
+        margin: 0;
+        font-size: 36px;
+    }
+
+    .stats-card h6 {
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stats-card .stat-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .fhir-card {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        border-radius: 18px;
+        padding: 22px;
+        color: white;
+        box-shadow: 0px 6px 18px rgba(13,110,253,0.35);
+        transition: 0.25s;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+
+    .fhir-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 12px 24px rgba(13,110,253,0.45);
+        color: white;
+        text-decoration: none;
+    }
+
+    .fhir-card h6 {
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.85;
+    }
+
+    .fhir-card h2 {
+        font-weight: 900;
+        margin: 0;
+        font-size: 28px;
+    }
+
+    .fhir-card .stat-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .section-header {
+        background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+        color: white;
+        padding: 12px 18px;
+        font-weight: 800;
+        border-radius: 14px 14px 0px 0px;
+        letter-spacing: 0.4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header .count-badge {
+        background: rgba(255,255,255,0.25);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .card {
+        border-radius: 18px;
+        border: none;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.10);
+        overflow: hidden;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(8px);
+    }
+
+    .table thead th {
+        background: #f0f4ff;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #495057;
+        padding: 12px 16px;
+        border-bottom: 2px solid #dee2f0;
+    }
+
+    .table-hover tbody tr:hover {
+        background: rgba(13,110,253,0.05);
+        transition: 0.2s;
+    }
+
+    .table td {
+        vertical-align: middle;
+        font-size: 14px;
+        padding: 13px 16px;
+        border-bottom: 1px solid #f0f4ff;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .btn-sm {
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .badge-pending {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .badge-explained {
+        background-color: #d1fae5;
+        color: #065f46;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .badge-active {
+        background-color: #dbeafe;
+        color: #1e40af;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .badge-scheduled {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .text-muted-small {
+        font-size: 13px;
+        color: #9ca3af;
+    }
+
+    .search-box, .filter-box {
+        border-radius: 14px;
+        padding: 11px 15px;
+        border: 1px solid #dbe4ff;
+        box-shadow: 0px 3px 8px rgba(0,0,0,0.05);
+        font-size: 14px;
+    }
+
+    .search-box:focus, .filter-box:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+        outline: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9ca3af;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .doctor-name {
+        font-weight: 600;
+        color: #0d6efd;
+    }
+
+    .medicines-cell {
+        max-width: 280px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .hospital-tag {
+        display: inline-block;
+        background: #f0f4ff;
+        color: #0d6efd;
+        border-radius: 8px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 3px;
+    }
+</style>
+
+<div class="container mt-4 pb-5">
+
+    <!-- TOP BAR -->
+    <div class="topbar d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4>🏥 Carelith Patient Portal</h4>
+            <small style="opacity:0.85;">Patient Dashboard | Logged in as: <b>{{ patient.user.username }}</b></small>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold" style="border-radius:10px;">
+            Logout
+        </a>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="profile-card mb-4">
+        <div>
+            <h5>👤 {{ patient.user.get_full_name|default:patient.user.username }}</h5>
+            <small>Username: <b>{{ patient.user.username }}</b> &nbsp;|&nbsp; Email: <b>{{ patient.user.email|default:"Not Added" }}</b></small>
+            <div class="mt-2 profile-meta">
+                <span>🚻 {{ patient.gender|default:"—"|capfirst }}</span>
+                <span>🎂 Age: {{ patient.age|default:"—" }}</span>
+                <span>🏥 {{ patient.hospital.name|default:"—" }}</span>
+                <span>🆔 FHIR ID: {{ patient.fhir_patient_id|default:"Not Assigned" }}</span>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'fhir:patient_view_fhir_records' patient.id %}" class="btn btn-primary fw-bold" style="border-radius:12px; padding: 10px 20px;">
+                📋 View FHIR Records
+            </a>
+        </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-icon">📅</div>
                 <h6>Appointments</h6>
-                <h3>{{ appointments.count }}</h3>
+                <h2>{{ appointments.count }}</h2>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-icon">📄</div>
                 <h6>Reports</h6>
-                <h3>{{ reports.count }}</h3>
+                <h2>{{ reports.count }}</h2>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-icon">💊</div>
                 <h6>Prescriptions</h6>
-                <h3>{{ prescriptions.count }}</h3>
+                <h2>{{ prescriptions.count }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-icon">🏥</div>
+                <h6>Hospital</h6>
+                <h2 style="font-size:16px; margin-top:6px;">{{ patient.hospital.name|default:"—"|truncatechars:20 }}</h2>
             </div>
         </div>
     </div>
 
-</div>
-
-<!-- ACCORDION -->
-<div class="accordion" id="patientAccordion">
+    <!-- SEARCH + FILTER -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-8">
+            <input type="text" id="searchInput" class="form-control search-box"
+                   placeholder="🔍 Search doctor, report title, medicines...">
+        </div>
+        <div class="col-md-4">
+            <select id="statusFilter" class="form-select filter-box">
+                <option value="all">🎛 Filter Reports: All</option>
+                <option value="pending">Pending</option>
+                <option value="explained">Explained</option>
+            </select>
+        </div>
+    </div>
 
     <!-- APPOINTMENTS -->
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#appointments">
-                Appointments
-            </button>
-        </h2>
-        <div id="appointments" class="accordion-collapse collapse show">
-            <div class="accordion-body">
-                {% if appointments %}
-                    <ul class="list-group">
-                        {% for a in appointments %}
-                        <li class="list-group-item">
-                            <strong>Doctor:</strong> Dr. {{ a.doctor.user.username }} <br>
-                            <strong>Date:</strong> {{ a.date }} <br>
-                            <strong>Status:</strong> {{ a.status }}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No appointments</p>
-                {% endif %}
-            </div>
+    <div class="card mb-4">
+        <div class="section-header">
+            📅 Appointments
+            <span class="count-badge">{{ appointments.count }}</span>
         </div>
-    </div>
-
- <!-- REPORTS -->
-<div class="accordion-item">
-    <h2 class="accordion-header">
-        <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#reports">
-            Reports
-        </button>
-    </h2>
-
-    <div id="reports" class="accordion-collapse collapse">
-        <div class="accordion-body">
-
-            {% if reports %}
-            <table class="table table-bordered">
-                <thead class="table-dark">
+        <div class="card-body p-0">
+            {% if appointments %}
+            <table class="table table-hover mb-0" id="appointmentsTable">
+                <thead>
                     <tr>
-                        <th>Laboratory</th>
+                        <th>#</th>
                         <th>Doctor</th>
-                        <th>Title</th>
-                        <th>Report</th>
-                        <th>Doctor Explanation</th>
+                        <th>Hospital</th>
+                        <th>Date</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    {% for r in reports %}
+                    {% for a in appointments %}
                     <tr>
-                        <!-- LAB DETAILS -->
+                        <td class="text-muted-small">{{ forloop.counter }}</td>
+                        <td><span class="doctor-name">Dr. {{ a.doctor.user.username }}</span></td>
                         <td>
-                            {% if r.laboratory %}
-                                <strong>{{ r.laboratory.name }}</strong><br>
-                                <small class="text-muted">
-                                    {{ r.laboratory.location }}
-                                </small>
-                            {% else %}
-                                <span class="text-danger">Not assigned</span>
-                            {% endif %}
+                            {% if a.doctor.hospital %}
+                                <span class="hospital-tag">{{ a.doctor.hospital.name }}</span>
+                            {% else %}—{% endif %}
                         </td>
-
-                        <!-- DOCTOR -->
+                        <td>{{ a.date|date:"M d, Y" }}</td>
                         <td>
-                            {% if r.doctor %}
-                                Dr. {{ r.doctor.user.username }}
+                            {% if a.status == "Scheduled" or a.status == "scheduled" %}
+                                <span class="badge-scheduled">{{ a.status }}</span>
                             {% else %}
-                                <span class="text-muted">Pending</span>
-                            {% endif %}
-                        </td>
-
-                        <!-- TITLE -->
-                        <td>{{ r.title }}</td>
-
-                        <!-- FILE -->
-                        <td>
-                            <a href="{{ r.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                View
-                            </a>
-                        </td>
-
-                        <!-- DOCTOR NOTES -->
-                        <td>
-                            {% if r.doctor_notes %}
-                                {{ r.doctor_notes }}
-                            {% else %}
-                                <span class="text-muted">Pending explanation</span>
+                                <span class="badge-active">{{ a.status }}</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-
             {% else %}
-                <p>No reports available</p>
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>No appointments available</p>
+            </div>
             {% endif %}
-
         </div>
     </div>
-</div>
 
+    <!-- REPORTS -->
+    <div class="card mb-4">
+        <div class="section-header">
+            📄 Reports
+            <span class="count-badge">{{ reports.count }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if reports %}
+            <table class="table table-hover mb-0" id="reportsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Laboratory</th>
+                        <th>Doctor</th>
+                        <th>File</th>
+                        <th>Status</th>
+                        <th>Doctor's Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reports %}
+                    <tr data-status="{% if r.doctor_notes %}explained{% else %}pending{% endif %}">
+                        <td class="text-muted-small">{{ forloop.counter }}</td>
+                        <td><b>{{ r.title }}</b></td>
+                        <td>
+                            {% if r.laboratory %}
+                                <strong>{{ r.laboratory.name }}</strong><br>
+                                <span class="text-muted-small">{{ r.laboratory.location }}</span>
+                            {% else %}
+                                <span class="text-muted-small">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.doctor %}
+                                <span class="doctor-name">Dr. {{ r.doctor.user.username }}</span>
+                            {% else %}
+                                <span class="text-muted-small">Not assigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.file %}
+                                <a href="{{ r.file.url }}" target="_blank" class="btn btn-outline-primary btn-sm me-1">View</a>
+                                <a href="{{ r.file.url }}" download class="btn btn-outline-success btn-sm">↓</a>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>
+                            {% if r.doctor_notes %}
+                                <span class="badge-explained">✓ Explained</span>
+                            {% else %}
+                                <span class="badge-pending">⏳ Pending</span>
+                            {% endif %}
+                        </td>
+                        <td style="max-width:220px; font-size:13px;">
+                            {% if r.doctor_notes %}
+                                {{ r.doctor_notes|truncatechars:80 }}
+                            {% else %}
+                                <span class="text-muted-small">Awaiting explanation</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>No reports available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
     <!-- PRESCRIPTIONS -->
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#prescriptions">
-                Prescriptions
-            </button>
-        </h2>
-        <div id="prescriptions" class="accordion-collapse collapse">
-            <div class="accordion-body">
-
-                {% if prescriptions %}
+    <div class="card mb-4">
+        <div class="section-header">
+            💊 Prescriptions
+            <span class="count-badge">{{ prescriptions.count }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if prescriptions %}
+            <table class="table table-hover mb-0" id="prescriptionsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Doctor</th>
+                        <th>Hospital</th>
+                        <th>Medicines</th>
+                        <th>Notes</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
                     {% for p in prescriptions %}
-                    <div class="border p-3 mb-3">
-                        <strong>Doctor:</strong> Dr. {{ p.doctor.user.username }} <br>
-                        <strong>Medicines:</strong>
-                        <div class="mt-2">
-                            {{ p.medicines|linebreaks }}
-                        </div>
-                        {% if p.notes %}
-                        <strong>Notes:</strong>
-                        <div class="mt-1">
-                            {{ p.notes|linebreaks }}
-                        </div>
-                        {% endif %}
-                        <small class="text-muted">
-                            {{ p.created_at }}
-                        </small>
-                    </div>
+                    <tr>
+                        <td class="text-muted-small">{{ forloop.counter }}</td>
+                        <td><span class="doctor-name">Dr. {{ p.doctor.user.username }}</span></td>
+                        <td>
+                            {% if p.hospital %}
+                                <span class="hospital-tag">{{ p.hospital.name }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="medicines-cell">{{ p.medicines|linebreaksbr }}</td>
+                        <td style="max-width:200px; font-size:13px;">
+                            {% if p.notes %}
+                                {{ p.notes|linebreaksbr }}
+                            {% else %}
+                                <span class="text-muted-small">No notes</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-muted-small">
+                                {% if p.created_at %}{{ p.created_at|date:"M d, Y" }}{% else %}—{% endif %}
+                            </span>
+                        </td>
+                    </tr>
                     {% endfor %}
-                {% else %}
-                    <p>No prescriptions</p>
-                {% endif %}
-
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>No prescriptions available</p>
             </div>
+            {% endif %}
         </div>
     </div>
 
 </div>
+
+<script>
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+
+    function filterTables() {
+        const searchValue = searchInput.value.toLowerCase();
+        const filterValue = statusFilter.value;
+
+        document.querySelectorAll("#appointmentsTable tbody tr").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(searchValue) ? "" : "none";
+        });
+
+        document.querySelectorAll("#reportsTable tbody tr").forEach(row => {
+            const matchesSearch = row.innerText.toLowerCase().includes(searchValue);
+            const matchesFilter = filterValue === "all" || row.getAttribute("data-status") === filterValue;
+            row.style.display = (matchesSearch && matchesFilter) ? "" : "none";
+        });
+
+        document.querySelectorAll("#prescriptionsTable tbody tr").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(searchValue) ? "" : "none";
+        });
+    }
+
+    searchInput.addEventListener("keyup", filterTables);
+    statusFilter.addEventListener("change", filterTables);
+</script>
 
 {% endblock %}
