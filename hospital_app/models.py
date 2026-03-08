@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Hospital(models.Model):
     name = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
@@ -10,4 +11,4 @@ class Hospital(models.Model):
     fhir_organization_id = models.CharField(max_length=200, unique=True, null=True, blank=True)
 
     def __str__(self):
-        return self.hospital_name
+        return self.name

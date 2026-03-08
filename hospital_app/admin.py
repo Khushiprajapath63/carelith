@@ -1,4 +1,7 @@
 from django.contrib import admin
 from .models import Hospital
 
-admin.site.register(Hospital)
+
+@admin.register(Hospital)
+class HospitalAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'email', 'phone')
