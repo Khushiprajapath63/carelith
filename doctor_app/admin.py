@@ -9,5 +9,5 @@ class DoctorAdmin(admin.ModelAdmin):
         'specialization',
         'qualification',
         'contact_number',
-        'hospital',
+        'hospital'
     )
