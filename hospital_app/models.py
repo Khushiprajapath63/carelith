@@ -10,4 +10,4 @@ class Hospital(models.Model):
     fhir_organization_id = models.CharField(max_length=200, unique=True, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.hospital_name
