@@ -3,6 +3,7 @@ Django settings for carelith project.
 """
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,7 +13,7 @@ print("BASE_DIR =", BASE_DIR)
 SECRET_KEY = 'django-insecure-2&8&4$n9$)9o426e5zpm6hlq5i22@_lxh(vvnpa)u7@h28fhx#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ["carelith.onrender.com"]
 
@@ -76,12 +77,11 @@ WSGI_APPLICATION = 'carelith.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR}/db.sqlite3'),
+        conn_max_age=600
+    )
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
