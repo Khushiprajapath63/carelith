@@ -8,7 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import post_login_redirect
 from django.http import HttpResponse
-
+from .views import home, post_login_redirect
 
 def home(request):
     return HttpResponse("Carelith server is running successfully 🚀")

@@ -1,7 +1,12 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from doctor_app.models import Doctor
 from patients.models import Patient
+
+
+def home(request):
+    return render(request, "home.html")
+
 
 def post_login_redirect(request):
     user = request.user

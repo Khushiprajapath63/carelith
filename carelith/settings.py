@@ -13,11 +13,11 @@ print("BASE_DIR =", BASE_DIR)
 SECRET_KEY = 'django-insecure-2&8&4$n9$)9o426e5zpm6hlq5i22@_lxh(vvnpa)u7@h28fhx#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = False
 
-ALLOWED_HOSTS = ["carelith.onrender.com"]
-
-
+ALLOWED_HOSTS = [
+    "carelith.onrender.com",
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -139,9 +139,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 # 👇 PUT YOUR OWN GMAIL HERE
-EMAIL_HOST_USER = 'khushikush63@gmail.com'
+import os
 
-# 👇 PUT **APP PASSWORD**, NOT YOUR NORMAL PASSWORD
-EMAIL_HOST_PASSWORD = 'myqfcjaiteiphjra'
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
