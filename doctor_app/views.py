@@ -171,13 +171,13 @@ def request_patient_access(request, patient_id):
         is_verified=False,
         expires_at=expiry_time
     )
-
+    print("OTP:", otp)
     send_mail(
         subject="Carelith OTP Verification",
         message=f"Hello {patient.user.username},\n\nYour OTP is: {otp}\n\nValid for 10 minutes.",
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[patient.user.email],
-        fail_silently=False,
+        fail_silently=True,
     )
 
     return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
