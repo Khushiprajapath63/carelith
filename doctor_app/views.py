@@ -175,17 +175,23 @@ def request_patient_access(request, patient_id):
     print("OTP GENERATED:", otp)
 
     try:
-        send_mail(
-            subject="Carelith OTP Verification",
-            message=f"Hello {patient.user.username},\n\nYour OTP is: {otp}\n\nValid for 10 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[patient.user.email],
-            fail_silently=False,
-        )
-        messages.success(request, "OTP sent to patient's email.")
-    except Exception as e:
-        print(f"[EMAIL ERROR] {e}")
-        messages.warning(request, f"Email could not be sent. OTP for testing: {otp}")
+        from django.core.mail import get_connection
+        connection = get_connection(
+            backend='django.core.mail.backends.smtp.EmailBackend',
+            timeout=5
+    )
+    send_mail(
+        subject="Carelith OTP Verification",
+        message=f"Hello {patient.user.username},\n\nYour OTP is: {otp}\n\nValid for 10 minutes.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[patient.user.email],
+        fail_silently=False,
+        connection=connection,
+    )
+    messages.success(request, "OTP sent to patient's email.")
+except Exception as e:
+    print(f"[EMAIL ERROR] {e}")
+    messages.warning(request, f"OTP for testing: {otp}")
 
     return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
 
