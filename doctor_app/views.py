@@ -181,7 +181,7 @@ def request_patient_access(request, patient_id):
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[patient.user.email],
             fail_silently=True,
-    )
+        )
         
     except Exception as e:
         print("EMAIL ERROR:", e)
