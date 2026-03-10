@@ -175,8 +175,6 @@ def request_patient_access(request, patient_id):
     # Demo OTP display
     print("OTP GENERATED:", otp)
 
-    messages.success(request, f"OTP for demo: {otp}")
-
     return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
 
 # ============================================================
