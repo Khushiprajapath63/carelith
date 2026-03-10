@@ -172,32 +172,12 @@ def request_patient_access(request, patient_id):
         expires_at=expiry_time
     )
 
-    patient_email = patient.user.email
+    # Demo OTP display
+    print("OTP GENERATED:", otp)
 
-    if not patient_email:
-        messages.error(request, "Patient email missing.")
-        return redirect("doctor_app:doctor_dashboard")
+    messages.success(request, f"OTP for demo: {otp}")
 
-    print("Generated OTP:", otp)
-
-    send_mail(
-        subject="Carelith OTP Verification",
-        message=(
-            f"Hello {patient.user.username}\n\n"
-            f"Your OTP is: {otp}\n"
-        ),
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[patient_email],
-        fail_silently=True
-    )
-
-    messages.success(request, f"OTP sent to {patient_email}")
-
-    return redirect(
-        "doctor_app:verify_patient_otp",
-        access_id=access_obj.id
-    )
-
+    return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
 
 # ============================================================
 # VERIFY OTP
