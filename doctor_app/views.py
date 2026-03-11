@@ -1,5 +1,7 @@
 import random
 import os
+import sendgrid
+from sendgrid.helpers.mail import Mail
 from datetime import timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -175,25 +177,18 @@ def request_patient_access(request, patient_id):
     print("OTP GENERATED:", otp)
 
     try:
-        from django.core.mail import get_connection
-        connection = get_connection(
-            backend='django.core.mail.backends.smtp.EmailBackend',
-            timeout=5
+        sg = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
+        email = Mail(
+            from_email='khushikush63@gmail.com',
+            to_emails=patient.user.email,
+            subject='Carelith OTP Verification',
+            plain_text_content=f'Hello {patient.user.username},\n\nYour OTP is: {otp}\n\nValid for 10 minutes.'
         )
-        send_mail(
-        subject="Carelith OTP Verification",
-        message=f"Hello {patient.user.username},\n\nYour OTP is: {otp}\n\nValid for 10 minutes.",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[patient.user.email],
-        fail_silently=False,
-        connection=connection,
-        )
+        sg.send(email)
         messages.success(request, "OTP sent to patient's email.")
     except Exception as e:
         print(f"[EMAIL ERROR] {e}")
-
-        return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
-
+        messages.error(request, "Failed to send OTP email. Please try again.")
 # ============================================================
 # VERIFY OTP
 # ============================================================
