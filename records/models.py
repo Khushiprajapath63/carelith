@@ -5,7 +5,7 @@ from patients.models import Patient
 from doctor_app.models import Doctor
 from laboratory.models import Laboratory
 from hospital_app.models import Hospital
-
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 # =========================
 # Encounter
@@ -109,8 +109,12 @@ class Report(models.Model):
     )
 
     title = models.CharField(max_length=255)
-    file = models.FileField(upload_to="reports/", null=True, blank=True)
-
+    file = models.FileField(
+        storage=RawMediaCloudinaryStorage(),
+        upload_to="reports/",
+        null=True,
+        blank=True
+    )
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
