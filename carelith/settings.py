@@ -8,9 +8,9 @@ import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-print("BASE_DIR =", BASE_DIR)
 
 # SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get("SECRET_KEY")
 SECRET_KEY = 'django-insecure-2&8&4$n9$)9o426e5zpm6hlq5i22@_lxh(vvnpa)u7@h28fhx#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -120,18 +120,20 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Tell Django to store uploaded files in Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 # ======================================================
 # ☁️ CLOUDINARY CONFIG (STORE REPORT FILES IN CLOUD)
 # ======================================================
 
+
 cloudinary.config(
-    cloud_name = os.environ.get("dgjbnr76m"),
-    api_key = os.environ.get("314642835739938"),
-    api_secret = os.environ.get("wBFZ12I9uewv__QcpAKpfVtN9f4")
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key = os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret = os.environ.get("CLOUDINARY_API_SECRET")
 )
 
-# Tell Django to store uploaded files in Cloudinary
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
