@@ -189,6 +189,7 @@ def request_patient_access(request, patient_id):
     except Exception as e:
         print(f"[EMAIL ERROR] {e}")
         messages.error(request, "Failed to send OTP email. Please try again.")
+    return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
 # ============================================================
 # VERIFY OTP
 # ============================================================
