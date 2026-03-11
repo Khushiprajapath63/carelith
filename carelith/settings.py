@@ -4,6 +4,7 @@ Django settings for carelith project.
 import os
 from pathlib import Path
 import dj_database_url
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'accounts',
     'notifications',
     'fhir',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 
@@ -117,7 +120,18 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# ======================================================
+# ☁️ CLOUDINARY CONFIG (STORE REPORT FILES IN CLOUD)
+# ======================================================
 
+cloudinary.config(
+    cloud_name = os.environ.get("dgjbnr76m"),
+    api_key = os.environ.get("314642835739938"),
+    api_secret = os.environ.get("wBFZ12I9uewv__QcpAKpfVtN9f4")
+)
+
+# Tell Django to store uploaded files in Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
