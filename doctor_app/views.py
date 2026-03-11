@@ -191,7 +191,6 @@ def request_patient_access(request, patient_id):
         messages.success(request, "OTP sent to patient's email.")
     except Exception as e:
         print(f"[EMAIL ERROR] {e}")
-        messages.warning(request, f"OTP for testing: {otp}")
 
         return redirect("doctor_app:verify_patient_otp", access_id=access_obj.id)
 
