@@ -7,7 +7,6 @@
 <style>
     body { background: #f0f4ff; font-family: 'Segoe UI', Arial, sans-serif; }
 
-    /* ── TOP HEADER ── */
     .page-header {
         background: linear-gradient(135deg, #0d6efd, #0a58ca);
         color: white;
@@ -19,7 +18,6 @@
     .page-header h3 { margin: 0; font-weight: 700; font-size: 22px; }
     .page-header small { opacity: 0.85; font-size: 13px; }
 
-    /* ── INFO CARDS ── */
     .info-card {
         background: white;
         border-radius: 16px;
@@ -47,11 +45,7 @@
         display: block;
         margin-bottom: 3px;
     }
-    .info-item span {
-        font-size: 14px;
-        font-weight: 600;
-        color: #212529;
-    }
+    .info-item span { font-size: 14px; font-weight: 600; color: #212529; }
     .badge-fhir {
         background: #e8f0ff;
         color: #0d6efd;
@@ -61,7 +55,6 @@
         font-weight: 700;
     }
 
-    /* ── TABS ── */
     .tab-wrapper {
         background: white;
         border-radius: 16px;
@@ -93,7 +86,6 @@
     }
     .tab-content { padding: 24px; }
 
-    /* ── UPLOAD SECTION ── */
     .upload-zone {
         border: 2px dashed #c5d5ff;
         border-radius: 12px;
@@ -106,7 +98,6 @@
     .upload-zone .upload-icon { font-size: 36px; margin-bottom: 10px; }
     .upload-zone p { color: #6c757d; font-size: 13px; margin: 0; }
 
-    /* ── REPORT TABLE ── */
     .reports-table { border-collapse: separate; border-spacing: 0; width: 100%; }
     .reports-table thead th {
         background: #f0f4ff;
@@ -118,53 +109,22 @@
         padding: 12px 16px;
         border-bottom: 2px solid #dee2f0;
     }
-    .reports-table tbody tr {
-        border-bottom: 1px solid #f0f4ff;
-        transition: background 0.15s;
-    }
+    .reports-table tbody tr { border-bottom: 1px solid #f0f4ff; transition: background 0.15s; }
     .reports-table tbody tr:hover { background: #f8faff; }
     .reports-table tbody td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
     .reports-table tbody tr:last-child td { border-bottom: none; }
 
-    /* ── BADGES ── */
-    .badge-hospital {
-        background: #fff3cd;
-        color: #856404;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-    .badge-current {
-        background: #d1fae5;
-        color: #065f46;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-    .badge-secure {
-        background: #dbeafe;
-        color: #1e40af;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-    .badge-pdf { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-    .badge-img { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-hospital { background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-current  { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-secure   { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-pdf  { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-img  { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
     .badge-json { background: #f3e8ff; color: #6b21a8; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
 
-    /* ── EMPTY STATE ── */
-    .empty-state {
-        text-align: center;
-        padding: 50px 20px;
-        color: #9ca3af;
-    }
+    .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; }
     .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
     .empty-state p { font-size: 15px; margin: 0; }
 
-    /* ── ALERT NOTE ── */
     .note-box {
         background: #eff6ff;
         border: 1px solid #bfdbfe;
@@ -175,7 +135,6 @@
         margin-top: 16px;
     }
 
-    /* ── QUALIFICATION TAG ── */
     .qual-tag {
         display: inline-block;
         background: #f0f4ff;
@@ -273,6 +232,23 @@
         </div>
     </div>
 
+    <!-- ENCOUNTER HISTORY -->
+    <div class="info-card">
+        <h5>📅 Encounter History</h5>
+        {% if patient.encounters.all %}
+            <ul style="padding-left:18px; margin:0;">
+                {% for encounter in patient.encounters.all %}
+                    <li style="margin-bottom:6px;">
+                        <b>{{ encounter.reason }}</b>
+                        <span style="color:#6c757d; font-size:13px;">({{ encounter.started_at|date:"d M Y" }})</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <span class="text-muted">No encounters recorded</span>
+        {% endif %}
+    </div>
+
     <!-- TABS SECTION -->
     <div class="tab-wrapper">
         <ul class="nav nav-tabs" id="fhirTabs">
@@ -324,16 +300,25 @@
                                 <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
 
                                 <td>
+                                    {% if resource.description %}
+                                        {% if "lab" in resource.description|lower %}
+                                            <span class="badge-secure">Lab</span>
+                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}
+                                            <span class="badge-hospital">Radiology</span>
+                                        {% endif %}
+                                    {% endif %}
                                     <b style="font-size:14px;">{{ resource.description|default:"Medical Report" }}</b>
                                 </td>
 
                                 <td>
                                     {% if resource.author %}
                                         {% for author in resource.author %}
-                                            <span style="font-size:13px;">{{ author.display|default:"Unknown" }}</span>
+                                            <span style="font-size:13px;">Dr. {{ author.display|default:"Unknown" }}</span>
                                         {% endfor %}
+                                    {% elif resource.description and doctor.user.username in resource.description %}
+                                        <span style="font-size:13px;">Dr. {{ doctor.user.username }}</span>
                                     {% else %}
-                                        <span class="text-muted">Unknown</span>
+                                        <span class="text-muted">Unknown Doctor</span>
                                     {% endif %}
                                 </td>
 
@@ -343,12 +328,14 @@
                                             {% with ct=c.attachment.contentType %}
                                                 {% if ct == "application/pdf" %}
                                                     <span class="badge-pdf">PDF</span>
-                                                {% elif ct == "application/json" %}
-                                                    <span class="badge-json">JSON</span>
                                                 {% elif "image" in ct %}
                                                     <span class="badge-img">IMAGE</span>
+                                                {% elif ct == "application/json" %}
+                                                    <span class="badge-json">JSON</span>
+                                                {% elif "xml" in ct %}
+                                                    <span class="badge-json">FHIR</span>
                                                 {% else %}
-                                                    <span class="badge-secure">{{ ct|default:"N/A" }}</span>
+                                                    <span class="badge-secure">FILE</span>
                                                 {% endif %}
                                             {% endwith %}
                                         {% endfor %}
@@ -373,9 +360,7 @@
                                     {% if resource.content %}
                                         {% for c in resource.content %}
                                             {% if c.attachment.url %}
-                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">
-                                                    View
-                                                </a>
+                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">View</a>
                                             {% else %}
                                                 <span class="badge-secure">Stored Securely</span>
                                             {% endif %}
@@ -400,7 +385,6 @@
             <!-- ── TAB 2: MY REPORTS ── -->
             <div class="tab-pane fade" id="tab-mine">
                 {% if fhir_data and fhir_data.entry %}
-                    {% with has_mine=False %}
                     <table class="reports-table">
                         <thead>
                             <tr>
@@ -416,14 +400,25 @@
                             {% if doctor.user.username in resource.description %}
                             <tr>
                                 <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
-                                <td><b>{{ resource.description|default:"Medical Report" }}</b></td>
+                                <td>
+                                    {% if resource.description %}
+                                        {% if "lab" in resource.description|lower %}
+                                            <span class="badge-secure">Lab</span>
+                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}
+                                            <span class="badge-hospital">Radiology</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <b>{{ resource.description|default:"Medical Report" }}</b>
+                                </td>
                                 <td>
                                     {% if resource.content %}
                                         {% for c in resource.content %}
                                             {% with ct=c.attachment.contentType %}
                                                 {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
                                                 {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
-                                                {% else %}<span class="badge-secure">{{ ct|default:"N/A" }}</span>{% endif %}
+                                                {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
+                                                {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
+                                                {% else %}<span class="badge-secure">FILE</span>{% endif %}
                                             {% endwith %}
                                         {% endfor %}
                                     {% endif %}
@@ -445,7 +440,6 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    {% endwith %}
                 {% else %}
                     <div class="empty-state">
                         <div class="empty-icon">📝</div>
@@ -474,16 +468,25 @@
                             <tr>
                                 <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
                                 <td>
+                                    {% if resource.description %}
+                                        {% if "lab" in resource.description|lower %}
+                                            <span class="badge-secure">Lab</span>
+                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}
+                                            <span class="badge-hospital">Radiology</span>
+                                        {% endif %}
+                                    {% endif %}
                                     <b>{{ resource.description|default:"Medical Report" }}</b>
                                     <div style="margin-top:4px;"><span class="badge-hospital">🏥 External Record</span></div>
                                 </td>
                                 <td>
                                     {% if resource.author %}
                                         {% for author in resource.author %}
-                                            <span style="font-size:13px;">{{ author.display|default:"Unknown" }}</span>
+                                            <span style="font-size:13px;">Dr. {{ author.display|default:"Unknown" }}</span>
                                         {% endfor %}
+                                    {% elif resource.description and doctor.user.username in resource.description %}
+                                        <span style="font-size:13px;">Dr. {{ doctor.user.username }}</span>
                                     {% else %}
-                                        <span class="text-muted">Unknown</span>
+                                        <span class="text-muted">Unknown Doctor</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -492,7 +495,9 @@
                                             {% with ct=c.attachment.contentType %}
                                                 {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
                                                 {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
-                                                {% else %}<span class="badge-secure">{{ ct|default:"N/A" }}</span>{% endif %}
+                                                {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
+                                                {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
+                                                {% else %}<span class="badge-secure">FILE</span>{% endif %}
                                             {% endwith %}
                                         {% endfor %}
                                     {% endif %}
@@ -568,22 +573,16 @@
 
 {% block extra_js %}
 <script>
-    // Persist active tab across page reloads
     const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
-    const savedTab = localStorage.getItem('fhirActiveTab');
+    const savedTab = sessionStorage.getItem('fhirActiveTab');
     if (savedTab) {
         const tab = document.querySelector(`[data-bs-target="${savedTab}"]`);
         if (tab) { new bootstrap.Tab(tab).show(); }
     }
     tabs.forEach(tab => {
         tab.addEventListener('shown.bs.tab', e => {
-            localStorage.setItem('fhirActiveTab', e.target.getAttribute('data-bs-target'));
+            sessionStorage.setItem('fhirActiveTab', e.target.getAttribute('data-bs-target'));
         });
     });
-
-    // Auto-switch to upload tab if no records
-    {% if not fhir_data or not fhir_data.entry %}
-    // stay on all records tab showing empty state
-    {% endif %}
 </script>
 {% endblock %}
