@@ -125,7 +125,61 @@ def fhir_observation(request):
         "entry": entries
     })
 
+# ─────────────────────────────────────────
+# FHIR Medical History
+# ─────────────────────────────────────────
 
+def fhir_medical_history(request, patient_id):
+
+    patient = get_object_or_404(Patient, id=patient_id)
+
+    encounters = Encounter.objects.filter(patient=patient)
+    observations = Observation.objects.filter(encounter__patient=patient)
+
+    encounter_entries = []
+    observation_entries = []
+
+    for enc in encounters:
+        encounter_entries.append({
+            "resource": {
+                "resourceType": "Encounter",
+                "id": str(enc.id),
+                "status": "finished",
+                "subject": {"reference": f"Patient/{patient.id}"},
+                "period": {
+                    "start": str(enc.started_at) if enc.started_at else None,
+                },
+                "reasonCode": [{
+                    "text": enc.reason
+                }]
+            }
+        })
+
+    for obs in observations:
+        observation_entries.append({
+            "resource": {
+                "resourceType": "Observation",
+                "id": str(obs.id),
+                "status": "final",
+                "subject": {"reference": f"Patient/{patient.id}"},
+                "code": {
+                    "text": obs.code
+                },
+                "valueString": str(obs.value),
+                "effectiveDateTime": str(obs.recorded_at)
+            }
+        })
+
+    return JsonResponse({
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "patient": {
+            "reference": f"Patient/{patient.id}",
+            "display": str(patient)
+        },
+        "total": len(encounter_entries) + len(observation_entries),
+        "entry": encounter_entries + observation_entries
+    })
 # ─────────────────────────────────────────
 # Build Records From FHIR Data
 # ─────────────────────────────────────────
