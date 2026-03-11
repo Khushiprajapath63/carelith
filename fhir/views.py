@@ -14,22 +14,22 @@ from records.models import Encounter, Observation
 # ─────────────────────────────────────────────────────────
 
 def get_document_references(fhir_patient_id):
-import requests
-from django.conf import settings
+    import requests
+    from django.conf import settings
 
 ```
-try:
-    url = f"{settings.FHIR_SERVER_URL}/DocumentReference?patient={fhir_patient_id}"
-    response = requests.get(url, timeout=10)
+    try:
+        url = f"{settings.FHIR_SERVER_URL}/DocumentReference?patient={fhir_patient_id}"
+        response = requests.get(url, timeout=10)
 
-    if response.status_code == 200:
+        if response.status_code == 200:
         return response.json()
 
-    return {}
+        return {}
 
-except Exception as e:
-    print(f"[FHIR ERROR] get_document_references: {e}")
-    return {}
+    except Exception as e:
+        print(f"[FHIR ERROR] get_document_references: {e}")
+        return {}
 ```
 
 # ─────────────────────────────────────────────────────────
