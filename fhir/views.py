@@ -35,6 +35,7 @@ def get_document_references(fhir_patient_id):
 # ─────────────────────────────────────────
 
 def fhir_patient(request, patient_id):
+
     patient = get_object_or_404(Patient, id=patient_id)
 
     data = {
@@ -56,6 +57,7 @@ def fhir_patient(request, patient_id):
 # ─────────────────────────────────────────
 
 def fhir_encounter(request):
+
     patient_id = request.GET.get("patient")
 
     if patient_id:
@@ -94,6 +96,7 @@ def fhir_encounter(request):
 # ─────────────────────────────────────────
 
 def fhir_observation(request):
+
     patient_id = request.GET.get("patient")
 
     if patient_id:
@@ -110,9 +113,7 @@ def fhir_observation(request):
                 "id": str(obs.id),
                 "status": "final",
                 "subject": {"reference": f"Patient/{obs.encounter.patient_id}"},
-                "code": {
-                    "text": obs.code
-                },
+                "code": {"text": obs.code},
                 "valueString": str(obs.value),
                 "effectiveDateTime": str(obs.recorded_at)
             }
@@ -125,6 +126,7 @@ def fhir_observation(request):
         "entry": entries
     })
 
+
 # ─────────────────────────────────────────
 # FHIR Medical History
 # ─────────────────────────────────────────
@@ -136,11 +138,10 @@ def fhir_medical_history(request, patient_id):
     encounters = Encounter.objects.filter(patient=patient)
     observations = Observation.objects.filter(encounter__patient=patient)
 
-    encounter_entries = []
-    observation_entries = []
+    entries = []
 
     for enc in encounters:
-        encounter_entries.append({
+        entries.append({
             "resource": {
                 "resourceType": "Encounter",
                 "id": str(enc.id),
@@ -149,22 +150,18 @@ def fhir_medical_history(request, patient_id):
                 "period": {
                     "start": str(enc.started_at) if enc.started_at else None,
                 },
-                "reasonCode": [{
-                    "text": enc.reason
-                }]
+                "reasonCode": [{"text": enc.reason}]
             }
         })
 
     for obs in observations:
-        observation_entries.append({
+        entries.append({
             "resource": {
                 "resourceType": "Observation",
                 "id": str(obs.id),
                 "status": "final",
                 "subject": {"reference": f"Patient/{patient.id}"},
-                "code": {
-                    "text": obs.code
-                },
+                "code": {"text": obs.code},
                 "valueString": str(obs.value),
                 "effectiveDateTime": str(obs.recorded_at)
             }
@@ -177,9 +174,11 @@ def fhir_medical_history(request, patient_id):
             "reference": f"Patient/{patient.id}",
             "display": str(patient)
         },
-        "total": len(encounter_entries) + len(observation_entries),
-        "entry": encounter_entries + observation_entries
+        "total": len(entries),
+        "entry": entries
     })
+
+
 # ─────────────────────────────────────────
 # Build Records From FHIR Data
 # ─────────────────────────────────────────
@@ -196,14 +195,13 @@ def _build_records(fhir_data, username=None):
     for entry in fhir_data["entry"]:
 
         resource = entry.get("resource", {})
+
         description = resource.get("description", "Medical Report")
 
-        # Author
         author_name = "Unknown"
         if resource.get("author"):
             author_name = resource["author"][0].get("display", "Unknown")
 
-        # File
         file_url = None
         content_type = "N/A"
 
@@ -212,7 +210,6 @@ def _build_records(fhir_data, username=None):
             file_url = attachment.get("url")
             content_type = attachment.get("contentType", "N/A")
 
-        # Category detection
         category = "Document"
 
         if "lab" in description.lower() or "blood" in description.lower():
@@ -221,10 +218,7 @@ def _build_records(fhir_data, username=None):
         elif "mri" in description.lower() or "xray" in description.lower():
             category = "Radiology"
 
-        # Ownership
-        is_mine = False
-        if username and author_name == username:
-            is_mine = True
+        is_mine = username and author_name == username
 
         record = {
             "description": description,
@@ -270,9 +264,7 @@ def view_patient_fhir_records(request, patient_id):
 
     patient = get_object_or_404(Patient, id=patient_id)
 
-    all_records = []
-    my_records = []
-    other_records = []
+    all_records, my_records, other_records = [], [], []
 
     if patient.fhir_patient_id:
         try:
@@ -310,9 +302,7 @@ def patient_view_fhir_records(request, patient_id):
         messages.error(request, "You are not authorized to view these records.")
         return redirect("patient_dashboard")
 
-    all_records = []
-    my_records = []
-    other_records = []
+    all_records, my_records, other_records = [], [], []
 
     if patient.fhir_patient_id:
 
