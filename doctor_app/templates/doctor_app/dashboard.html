@@ -413,12 +413,15 @@
         <div class="section-header">📌 Uploaded FHIR Reports</div>
 
         <div class="card-body">
-
-            {% if fhir_reports %}
-                {% for item in fhir_reports %}
-                    <div class="card p-3 mb-3">
-                        <h5 class="mb-2">👤 Patient: <b>{{ item.patient.user.username }}</b></h5>
-
+        <tr>
+            {% if report.file %}
+                <a href="{{ report.file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                    📄 View Report
+                </a>
+            {% else %}
+                <span class="text-muted">No File</span>
+            {% endif %}
+        </tr>
                         <table class="table table-sm table-hover">
                             <thead>
                                 <tr>
