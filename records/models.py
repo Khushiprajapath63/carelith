@@ -7,6 +7,7 @@ from laboratory.models import Laboratory
 from hospital_app.models import Hospital
 from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
+
 # =========================
 # Encounter
 # =========================
@@ -109,22 +110,22 @@ class Report(models.Model):
     )
 
     title = models.CharField(max_length=255)
+
     file = models.FileField(
         storage=RawMediaCloudinaryStorage(),
         upload_to="reports/",
         null=True,
         blank=True
     )
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="pending"
     )
 
-    # ✅ FIX: so it doesn't crash in admin
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    # optional created_at (your previous field)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -189,3 +190,41 @@ class Prescription(models.Model):
         if self.patient:
             return f"Prescription for {self.patient.user.username}"
         return f"Prescription #{self.id}"
+
+
+# =========================
+# Audit Log (NEW FEATURE)
+# =========================
+class AuditLog(models.Model):
+
+    doctor = models.ForeignKey(
+        Doctor,
+        on_delete=models.CASCADE,
+        related_name="audit_logs"
+    )
+
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.CASCADE,
+        related_name="audit_logs"
+    )
+
+    report = models.ForeignKey(
+        Report,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="audit_logs"
+    )
+
+    action = models.CharField(max_length=100)
+
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True
+    )
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.doctor} {self.action} {self.patient}"
