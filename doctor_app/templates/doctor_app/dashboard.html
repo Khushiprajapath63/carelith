@@ -1,3 +1,4 @@
+{% extends "base_dashboard.html" %}
 {% extends 'base.html' %}
 {% load static %}
 
@@ -123,23 +124,40 @@
 
 <div class="container mt-4">
 
- <!-- TOP BAR -->
+<!-- TOP BAR -->
 <div class="topbar d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4>🏥 Carelith Hospital Portal</h4>
-        <small>
-            Doctor Dashboard | Logged in as: <b>Dr. {{ doctor.user.username }}</b>
-        </small>
+
+    <div class="d-flex align-items-center gap-3">
+
+        <!-- Doctor Avatar -->
+        <div style="width:55px;height:55px;border-radius:50%;background:#0d6efd;
+        color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">
+            Dr
+        </div>
+
+        <div>
+            <h4>🏥 Carelith Doctor Portal</h4>
+            <small style="opacity:0.85;">
+                Doctor Dashboard | Logged in as:
+                <b>Dr. {{ doctor.user.username }}</b>
+            </small>
+        </div>
+
     </div>
 
     <div>
-        <form method="post" action="{% url 'logout' %}">
+
+        <a href="{% url 'doctor_app:doctor_settings' %}" class="btn btn-secondary btn-sm">
+            ⚙ Settings
+        </a>
+
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
             {% csrf_token %}
-            <button type="submit" class="btn btn-light btn-sm fw-bold">
-                Logout
-            </button>
+            <button class="btn btn-light btn-sm">Logout</button>
         </form>
+
     </div>
+
 </div>
 
     <!-- MESSAGES -->

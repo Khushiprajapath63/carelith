@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from cloudinary.models import CloudinaryField
 
 class Patient(models.Model):
     GENDER_CHOICES = [
@@ -13,6 +13,11 @@ class Patient(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='patient_profile'
+    )
+    profile_picture = CloudinaryField(
+        'image',
+        blank=True,
+        null=True
     )
     hospital = models.ForeignKey(
         "hospital_app.Hospital",

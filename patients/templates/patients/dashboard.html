@@ -1,4 +1,6 @@
+{% extends "base_dashboard.html" %}
 {% extends "base.html" %}
+
 {% block title %}Patient Dashboard{% endblock %}
 
 {% block content %}
@@ -288,34 +290,35 @@
 
 <div class="container mt-4 pb-5">
 
-   <!-- TOP BAR -->
+<!-- TOP BAR -->
 <div class="topbar d-flex justify-content-between align-items-center mb-4">
 
-<div>
-<h4>🏥 Carelith Patient Portal</h4>
-<small style="opacity:0.85;">
-Patient Dashboard | Logged in as: <b>{{ patient.user.username }}</b>
-</small>
-</div>
+    <div class="d-flex align-items-center gap-3">
 
-<div class="d-flex gap-2">
+        <!-- Profile Picture -->
+        <img src="{{ patient.profile_picture.url }}"
+        style="width:60px;height:60px;border-radius:50%;object-fit:cover;">
 
-<a href="{% url 'patients:patient_settings' %}" 
-class="btn btn-secondary btn-sm fw-bold" 
-style="border-radius:10px;">
-⚙ Settings
-</a>
+        <div>
+            <h4>🏥 Carelith Patient Portal</h4>
+            <small>
+                Patient Dashboard | Logged in as:
+                <b>{{ patient.user.username }}</b>
+            </small>
+        </div>
 
-<form method="post" action="{% url 'logout' %}">
-{% csrf_token %}
-<button type="submit"
-class="btn btn-light btn-sm fw-bold"
-style="border-radius:10px;">
-Logout
-</button>
-</form>
+    </div>
 
-</div>
+    <div>
+        <a href="{% url 'patients:patient_settings' %}" class="btn btn-secondary btn-sm">
+            ⚙ Settings
+        </a>
+
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-light btn-sm">Logout</button>
+        </form>
+    </div>
 
 </div>
 
@@ -339,36 +342,43 @@ Logout
     </div>
 
     <!-- STATS ROW -->
-    <div class="row mb-4 g-3">
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stat-icon">📅</div>
-                <h6>Appointments</h6>
-                <h2>{{ appointments.count }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stat-icon">📄</div>
-                <h6>Reports</h6>
-                <h2>{{ reports.count }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stat-icon">💊</div>
-                <h6>Prescriptions</h6>
-                <h2>{{ prescriptions.count }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stat-icon">🏥</div>
-                <h6>Hospital</h6>
-                <h2 style="font-size:16px; margin-top:6px;">{{ patient.hospital.name|default:"—"|truncatechars:20 }}</h2>
-            </div>
+<div class="row mb-4 g-3">
+
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stat-icon">📅</div>
+            <h6>Appointments</h6>
+            <h2>{{ appointments.count }}</h2>
         </div>
     </div>
+
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stat-icon">📄</div>
+            <h6>Reports</h6>
+            <h2>{{ reports.count }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stat-icon">💊</div>
+            <h6>Prescriptions</h6>
+            <h2>{{ prescriptions.count }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stat-icon">🏥</div>
+            <h6>Hospital</h6>
+            <h2 style="font-size:16px; margin-top:6px;">
+                {{ patient.hospital.name|default:"—"|truncatechars:20 }}
+            </h2>
+        </div>
+    </div>
+
+</div>
 
     <!-- SEARCH + FILTER -->
     <div class="row mb-4 g-3">

@@ -1,0 +1,54 @@
+{% extends "base_dashboard.html" %}
+
+{% block content %}
+
+<div class="container" style="max-width:650px;">
+
+```
+<div class="card shadow-sm border-0" style="border-radius:18px;">
+
+    <div class="card-body p-4">
+
+        <h3 class="mb-4 fw-bold text-primary">
+            ⚙ Doctor Settings
+        </h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Specialization</label>
+                <input 
+                    type="text" 
+                    class="form-control"
+                    name="specialization"
+                    value="{{ doctor.specialization }}"
+                    placeholder="Enter specialization"
+                >
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Qualification</label>
+                <input 
+                    type="text" 
+                    class="form-control"
+                    name="qualification"
+                    value="{{ doctor.qualification }}"
+                    placeholder="Enter qualification"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4">
+                💾 Save Changes
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+{% endblock %}

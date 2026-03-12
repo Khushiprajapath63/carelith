@@ -59,10 +59,9 @@ def doctor_dashboard(request):
     )
 
     # ALL PATIENTS (for dashboard list)
-    all_patients = Patient.objects.all()
-
-    # patients doctor has access to
-    patients = Patient.objects.filter(id__in=verified_patients)
+    # patients doctor does NOT yet have access to
+    all_patients = Patient.objects.exclude(id__in=verified_patients)
+    
 
     # ========================================================
     # FHIR REPORT FETCH
@@ -114,13 +113,14 @@ def doctor_dashboard(request):
             print(f"[FHIR ERROR] {e}")
             continue
 
-    return render(request, "doctor_app/dashboard.html", {
+    return render(request, "doctor_app/doctor_dashboard.html", {
         "doctor": doctor,
         "appointments": appointments,
         "reports": reports,
         "prescriptions": prescriptions,
         "fhir_reports": fhir_reports,
-        "patients": all_patients,
+        "patients": patients,
+        "all_patients": all_patients,
         "current_time": timezone.now(),
     })
 
@@ -332,3 +332,16 @@ def upload_patient_report_to_fhir(request, patient_id):
         "doctor_app:view_patient_fhir_records",
         patient_id=patient.id
     )
+@login_required
+def doctor_settings(request):
+
+    doctor = Doctor.objects.get(user=request.user)
+
+    if request.method == "POST":
+        doctor.specialization = request.POST.get("specialization")
+        doctor.qualification = request.POST.get("qualification")
+        doctor.save()
+
+    return render(request, "doctor_app/settings.html", {
+        "doctor": doctor
+    })    

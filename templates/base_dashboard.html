@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Carelith</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+background:#f4f7ff;
+font-family:'Segoe UI',sans-serif;
+margin:0;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:230px;
+height:100vh;
+background:#0d6efd;
+position:fixed;
+left:0;
+top:0;
+padding-top:25px;
+color:white;
+display:flex;
+flex-direction:column;
+}
+
+.sidebar h4{
+text-align:center;
+margin-bottom:35px;
+font-weight:700;
+}
+
+.sidebar a{
+display:block;
+padding:12px 20px;
+color:white;
+text-decoration:none;
+font-weight:500;
+transition:0.2s;
+}
+
+.sidebar a:hover{
+background:rgba(255,255,255,0.15);
+}
+
+.sidebar .logout{
+margin-top:auto;
+padding:20px;
+}
+
+/* MAIN CONTENT */
+
+.main{
+margin-left:230px;
+padding:30px;
+min-height:100vh;
+}
+
+/* PAGE HEADER */
+
+.page-header{
+margin-bottom:25px;
+}
+
+.page-header h2{
+font-weight:700;
+}
+
+/* BUTTON STYLE */
+
+.logout button{
+width:100%;
+border:none;
+border-radius:8px;
+padding:8px;
+font-weight:600;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h4>🏥 Carelith</h4>
+
+{% if doctor %}
+
+<a href="{% url 'doctor_app:doctor_dashboard' %}">Dashboard</a>
+<a href="#">Patients</a>
+<a href="#">Reports</a>
+<a href="{% url 'doctor_app:doctor_settings' %}">Settings</a>
+
+{% elif patient %}
+
+<a href="{% url 'patients:patient_dashboard' %}">Dashboard</a>
+<a href="#">Appointments</a>
+<a href="#">Reports</a>
+<a href="{% url 'patients:patient_settings' %}">Settings</a>
+
+{% endif %}
+
+<div class="logout">
+
+<form method="post" action="{% url 'logout' %}">
+{% csrf_token %}
+<button class="btn btn-light btn-sm">
+Logout
+</button>
+</form>
+
+</div>
+
+</div>
+
+
+
+<!-- MAIN CONTENT -->
+
+<div class="main">
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+</body>
+</html>

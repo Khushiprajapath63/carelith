@@ -13,4 +13,5 @@ urlpatterns = [
     # ✅ FHIR URLs
     path("patient/<int:patient_id>/fhir-records/", views.view_patient_fhir_records, name="view_patient_fhir_records"),
     path("patient/<int:patient_id>/upload-fhir-report/", views.upload_patient_report_to_fhir, name="upload_patient_report_to_fhir"),
+    path("settings/",views.doctor_settings,name="doctor_settings")
 ]
