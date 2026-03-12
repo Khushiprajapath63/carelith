@@ -123,20 +123,24 @@
 
 <div class="container mt-4">
 
-    <!-- TOP BAR -->
-    <div class="topbar d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4>🏥 Carelith Hospital Portal</h4>
-            <small>
-                Doctor Dashboard | Logged in as: <b>Dr. {{ doctor.user.username }}</b>
-            </small>
-        </div>
-        <div>
-            <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold">
-                Logout
-            </a>
-        </div>
+ <!-- TOP BAR -->
+<div class="topbar d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4>🏥 Carelith Hospital Portal</h4>
+        <small>
+            Doctor Dashboard | Logged in as: <b>Dr. {{ doctor.user.username }}</b>
+        </small>
     </div>
+
+    <div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-light btn-sm fw-bold">
+                Logout
+            </button>
+        </form>
+    </div>
+</div>
 
     <!-- MESSAGES -->
     {% if messages %}

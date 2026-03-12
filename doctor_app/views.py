@@ -283,6 +283,7 @@ def upload_patient_report_to_fhir(request, patient_id):
 
     patient = get_object_or_404(Patient, id=patient_id)
 
+    # Ensure FHIR patient exists
     if not patient.fhir_patient_id or not check_patient_exists(patient.fhir_patient_id):
 
         new_fhir_id = create_fhir_patient(
@@ -311,25 +312,16 @@ def upload_patient_report_to_fhir(request, patient_id):
                 patient_id=patient.id
             )
 
-        upload_dir = os.path.join(settings.MEDIA_ROOT, "temp_reports")
-        os.makedirs(upload_dir, exist_ok=True)
-
-        file_path = os.path.join(upload_dir, report_file.name)
-
-        with open(file_path, "wb+") as destination:
-            for chunk in report_file.chunks():
-                destination.write(chunk)
+        # ⭐ Cloudinary URL
+        file_url = report_file.url
 
         description_text = f"Report uploaded by Dr. {doctor.user.username}"
 
         status, text = upload_document_reference(
             patient.fhir_patient_id,
-            file_path,
+            file_url,
             description_text
         )
-
-        if os.path.exists(file_path):
-            os.remove(file_path)
 
         if status in [200, 201]:
             messages.success(request, "Report uploaded successfully!")
