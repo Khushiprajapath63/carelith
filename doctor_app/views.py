@@ -115,7 +115,7 @@ def doctor_dashboard(request):
             print(f"[FHIR ERROR] {e}")
             continue
 
-    return render(request, "doctor_app/doctor_dashboard.html", {
+    return render(request, "doctor_app/dashboard.html", {
         "doctor": doctor,
         "appointments": appointments,
         "reports": reports,
