@@ -61,8 +61,7 @@ def doctor_dashboard(request):
     # ALL PATIENTS (for dashboard list)
     # patients doctor does NOT yet have access to
     patients = Patient.objects.filter(id__in=verified_patients)
-    all_patients = Patient.objects.exclude(id__in=verified_patients)
-    
+    all_patients = Patient.objects.all()
     
 
     # ========================================================
