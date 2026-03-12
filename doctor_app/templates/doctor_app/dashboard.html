@@ -1,271 +1,210 @@
 {% extends "base_dashboard.html" %}
-
 {% load static %}
 
 {% block title %}Doctor Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
-    body {
-        background: #f5f8ff;
-        font-family: Arial, sans-serif;
-    }
+    body { background: #f0f4ff; font-family: 'Segoe UI', Arial, sans-serif; }
 
+    /* ── TOPBAR ── */
     .topbar {
-        background: #0d6efd;
-        padding: 18px 25px;
-        border-radius: 14px;
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        padding: 20px 28px;
+        border-radius: 16px;
         color: white;
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.12);
+        box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+        margin-bottom: 24px;
+    }
+    .topbar h4 { margin: 0; font-weight: 700; font-size: 20px; }
+    .topbar small { opacity: 0.85; font-size: 13px; }
+    .avatar {
+        width: 52px; height: 52px; border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        color: white; display: flex; align-items: center;
+        justify-content: center; font-weight: 700; font-size: 18px;
+        border: 2px solid rgba(255,255,255,0.5);
     }
 
-    .topbar h4 {
-        margin: 0;
+    /* ── STAT CARDS ── */
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        border: none;
+        transition: transform 0.2s;
+        border-left: 5px solid #0d6efd;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-card .stat-num { font-size: 36px; font-weight: 800; color: #0d6efd; margin: 6px 0 0; }
+    .stat-card .stat-label { font-size: 13px; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .stat-icon { font-size: 32px; opacity: 0.15; position: absolute; right: 20px; top: 18px; }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+    .section-card .section-header {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        color: white;
+        padding: 14px 20px;
         font-weight: 700;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
+    .section-card .card-body { padding: 0; }
 
-    .topbar small {
-        font-size: 14px;
-        opacity: 0.9;
-    }
-
-    .stats-card {
-        border-radius: 18px;
-        border: none;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-        transition: 0.2s;
-    }
-
-    .stats-card:hover {
-        transform: translateY(-3px);
-    }
-
-    .stats-card h2 {
-        font-weight: bold;
-    }
-
-    .section-header {
-        background: #0d6efd;
-        color: white;
+    /* ── TABLE ── */
+    .dash-table { width: 100%; border-collapse: collapse; }
+    .dash-table thead th {
+        background: #f8faff;
+        color: #495057;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         padding: 12px 18px;
-        font-weight: bold;
-        border-radius: 14px 14px 0px 0px;
-        font-size: 16px;
+        border-bottom: 2px solid #e8f0ff;
     }
+    .dash-table tbody tr { border-bottom: 1px solid #f0f4ff; transition: background 0.15s; }
+    .dash-table tbody tr:hover { background: #f8faff; }
+    .dash-table tbody td { padding: 14px 18px; font-size: 14px; vertical-align: middle; }
+    .dash-table tbody tr:last-child td { border-bottom: none; }
 
-    .table thead {
-        background: #f0f4ff;
-    }
+    /* ── BADGES ── */
+    .badge-verified   { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-notverified{ background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-pending    { background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-explained  { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-fhir       { background: #e8f0ff; color: #0d6efd; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
 
-    .badge-pending {
-        background-color: #ffc107;
-        color: black;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
-    }
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 36px; color: #9ca3af; }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; margin: 0; }
 
-    .badge-explained {
-        background-color: #198754;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .badge-verified {
-        background-color: #198754;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .badge-notverified {
-        background-color: #dc3545;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-    }
-
-    .card {
-        border-radius: 18px;
-        border: none;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .btn-sm {
-        border-radius: 10px;
-        font-weight: bold;
-    }
-
-    .btn-action {
-        min-width: 110px;
-    }
-
-    .mini-title {
-        font-weight: bold;
-        font-size: 14px;
-        color: #6c757d;
-    }
+    /* ── BUTTONS ── */
+    .btn-sm { border-radius: 8px; font-weight: 600; font-size: 12px; padding: 5px 12px; }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="container-fluid px-4 py-3" style="max-width: 1200px; margin: auto;">
 
-<div class="container mt-4">
-
-<!-- TOP BAR -->
-<div class="topbar d-flex justify-content-between align-items-center mb-4">
-
-    <div class="d-flex align-items-center gap-3">
-
-        <!-- Doctor Avatar -->
-        <div style="width:55px;height:55px;border-radius:50%;background:#0d6efd;
-        color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">
-            Dr
+    <!-- TOPBAR -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar">Dr</div>
+            <div>
+                <h4>🏥 Carelith Doctor Portal</h4>
+                <small>Doctor Dashboard | Logged in as: <b>Dr. {{ doctor.user.username }}</b>
+                {% if doctor.specialization %} &nbsp;·&nbsp; {{ doctor.specialization }}{% endif %}
+                {% if doctor.hospital %} &nbsp;·&nbsp; {{ doctor.hospital.name }}{% endif %}
+                </small>
+            </div>
         </div>
-
-        <div>
-            <h4>🏥 Carelith Doctor Portal</h4>
-            <small style="opacity:0.85;">
-                Doctor Dashboard | Logged in as:
-                <b>Dr. {{ doctor.user.username }}</b>
-            </small>
+        <div class="d-flex gap-2">
+            <a href="{% url 'doctor_app:doctor_settings' %}" class="btn btn-light btn-sm">⚙ Settings</a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
         </div>
-
     </div>
-
-    <div>
-
-        <a href="{% url 'doctor_app:doctor_settings' %}" class="btn btn-secondary btn-sm">
-            ⚙ Settings
-        </a>
-
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button class="btn btn-light btn-sm">Logout</button>
-        </form>
-
-    </div>
-
-</div>
 
     <!-- MESSAGES -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" style="border-radius:12px;">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
     {% endif %}
 
-    <!-- STATS -->
-    <div class="row mb-4">
-
+    <!-- STAT CARDS -->
+    <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="card stats-card text-center p-3">
-                <h6 class="text-muted">Total Appointments</h6>
-                <h2>{{ appointments.count }}</h2>
+            <div class="stat-card position-relative">
+                <div class="stat-icon">📅</div>
+                <div class="stat-label">Total Appointments</div>
+                <div class="stat-num">{{ appointments.count }}</div>
             </div>
         </div>
-
         <div class="col-md-4">
-            <div class="card stats-card text-center p-3">
-                <h6 class="text-muted">Total Reports</h6>
-                <h2>{{ reports.count }}</h2>
+            <div class="stat-card position-relative" style="border-left-color:#198754;">
+                <div class="stat-icon">📄</div>
+                <div class="stat-label">Total Reports</div>
+                <div class="stat-num" style="color:#198754;">{{ reports.count }}</div>
             </div>
         </div>
-
         <div class="col-md-4">
-            <div class="card stats-card text-center p-3">
-                <h6 class="text-muted">Total Prescriptions</h6>
-                <h2>{{ prescriptions.count }}</h2>
+            <div class="stat-card position-relative" style="border-left-color:#6f42c1;">
+                <div class="stat-icon">💊</div>
+                <div class="stat-label">Total Prescriptions</div>
+                <div class="stat-num" style="color:#6f42c1;">{{ prescriptions.count }}</div>
             </div>
         </div>
-
     </div>
-    <!-- PATIENT LIST -->
-<div class="card mb-4">
-    <div class="section-header">👥 Registered Patients</div>
 
-    <div class="card-body">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Patient Name</th>
-                    <th>Email</th>
-                    <th>FHIR ID</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-            {% for patient in patients %}
-                <tr>
-
-                    <td>
-                        <b>{{ patient.user.first_name }} {{ patient.user.last_name }}</b>
-                        <br>
-                        <small class="text-muted">{{ patient.user.username }}</small>
-                    </td>
-
-                    <td>
-                        {{ patient.user.email|default:"—" }}
-                    </td>
-
-                    <td>
-                        {% if patient.fhir_patient_id %}
-                            <span class="badge-verified">FHIR Linked</span>
-                        {% else %}
-                            <span class="badge-notverified">Not Linked</span>
-                        {% endif %}
-                    </td>
-
-                    <td>
-
-                        <a href="{% url 'doctor_app:request_patient_access' patient.id %}"
-                           class="btn btn-warning btn-sm btn-action">
-                           Request OTP
-                        </a>
-
-                        <a href="{% url 'doctor_app:view_patient_fhir_records' patient.id %}"
-                           class="btn btn-outline-info btn-sm btn-action ms-1">
-                           View Records
-                        </a>
-
-                    </td>
-
-                </tr>
-
-            {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted">
-                        No patients registered yet
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-
-        </table>
-    </div>
-</div>
-    <!-- APPOINTMENTS -->
-    <div class="card mb-4">
-        <div class="section-header">📅 Appointments</div>
-
+    <!-- REGISTERED PATIENTS -->
+    <div class="section-card">
+        <div class="section-header">👥 Registered Patients</div>
         <div class="card-body">
-            <table class="table table-hover">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Email</th>
+                        <th>FHIR Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for patient in patients %}
+                    <tr>
+                        <td>
+                            <b>{{ patient.user.first_name }} {{ patient.user.last_name }}</b>
+                            <div style="font-size:12px; color:#6c757d;">@{{ patient.user.username }}</div>
+                        </td>
+                        <td>{{ patient.user.email|default:"—" }}</td>
+                        <td>
+                            {% if patient.fhir_patient_id %}
+                                <span class="badge-fhir">✓ FHIR Linked</span>
+                            {% else %}
+                                <span class="badge-notverified">Not Linked</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'doctor_app:request_patient_access' patient.id %}" class="btn btn-warning btn-sm">Request OTP</a>
+                            <a href="{% url 'doctor_app:view_patient_fhir_records' patient.id %}" class="btn btn-outline-primary btn-sm ms-1">View Records</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">
+                        <div class="empty-state">
+                            <div class="empty-icon">👥</div>
+                            <p>No patients registered yet</p>
+                        </div>
+                    </td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div class="section-card">
+        <div class="section-header">📅 Appointments</div>
+        <div class="card-body">
+            <table class="dash-table">
                 <thead>
                     <tr>
                         <th>Patient</th>
@@ -275,61 +214,34 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-
                 <tbody>
                 {% for appt in appointments %}
                     <tr>
                         <td><b>{{ appt.patient.user.username }}</b></td>
-
-                        <td>
-                            {% if appt.started_at %}
-                                {{ appt.started_at|date:"M d, Y" }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if appt.started_at %}
-                                {{ appt.started_at|time:"h:i A" }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
-
+                        <td>{% if appt.started_at %}{{ appt.started_at|date:"M d, Y" }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                        <td>{% if appt.started_at %}{{ appt.started_at|time:"h:i A" }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
                         <td>
                             {% if appt.patient.patientaccess_set.last and appt.patient.patientaccess_set.last.is_verified %}
-                                <span class="badge-verified">Verified</span>
+                                <span class="badge-verified">✓ Verified</span>
                             {% else %}
                                 <span class="badge-notverified">Not Verified</span>
                             {% endif %}
                         </td>
-
                         <td>
-                            <a href="{% url 'doctor_app:request_patient_access' appt.patient.id %}"
-                               class="btn btn-warning btn-sm btn-action">
-                                Request OTP
-                            </a>
-
+                            <a href="{% url 'doctor_app:request_patient_access' appt.patient.id %}" class="btn btn-warning btn-sm">Request OTP</a>
                             {% if appt.patient.patientaccess_set.last %}
-                                <a href="{% url 'doctor_app:verify_patient_otp' appt.patient.patientaccess_set.last.id %}"
-                                   class="btn btn-success btn-sm btn-action ms-1">
-                                    Verify OTP
-                                </a>
+                                <a href="{% url 'doctor_app:verify_patient_otp' appt.patient.patientaccess_set.last.id %}" class="btn btn-success btn-sm ms-1">Verify OTP</a>
                             {% endif %}
-
-                            <a href="{% url 'doctor_app:view_patient_fhir_records' appt.patient.id %}"
-                               class="btn btn-outline-info btn-sm btn-action ms-1">
-                               View FHIR
-                            </a>
+                            <a href="{% url 'doctor_app:view_patient_fhir_records' appt.patient.id %}" class="btn btn-outline-info btn-sm ms-1">View FHIR</a>
                         </td>
                     </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            No appointments available
-                        </td>
-                    </tr>
+                    <tr><td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <p>No appointments available</p>
+                        </div>
+                    </td></tr>
                 {% endfor %}
                 </tbody>
             </table>
@@ -337,37 +249,23 @@
     </div>
 
     <!-- REPORTS -->
-    <div class="card mb-4">
+    <div class="section-card">
         <div class="section-header">📄 Patient Reports</div>
-
         <div class="card-body">
-            <table class="table table-hover">
+            <table class="dash-table">
                 <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Test Name</th>
-                        <th>File</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
+                    <tr><th>Patient</th><th>Test Name</th><th>File</th><th>Status</th><th>Action</th></tr>
                 </thead>
-
                 <tbody>
                 {% for report in reports %}
                     <tr>
                         <td><b>{{ report.patient.user.username }}</b></td>
                         <td>{{ report.title }}</td>
-
                         <td>
                             {% if report.file %}
-                                <a href="{{ report.file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                    View
-                                </a>
-                            {% else %}
-                                —
-                            {% endif %}
+                                <a href="{{ report.file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">View</a>
+                            {% else %}—{% endif %}
                         </td>
-
                         <td>
                             {% if report.status == "pending" %}
                                 <span class="badge-pending">Pending</span>
@@ -375,24 +273,21 @@
                                 <span class="badge-explained">Explained</span>
                             {% endif %}
                         </td>
-
                         <td>
                             {% if report.status == "pending" %}
-                                <a href="{% url 'doctor_app:explain_report' report.id %}"
-                                   class="btn btn-primary btn-sm">
-                                    Explain
-                                </a>
+                                <a href="{% url 'doctor_app:explain_report' report.id %}" class="btn btn-primary btn-sm">Explain</a>
                             {% else %}
-                                <span class="text-success fw-bold">Done</span>
+                                <span style="color:#198754; font-weight:700;">✓ Done</span>
                             {% endif %}
                         </td>
                     </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            No reports available
-                        </td>
-                    </tr>
+                    <tr><td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">📄</div>
+                            <p>No reports available</p>
+                        </div>
+                    </td></tr>
                 {% endfor %}
                 </tbody>
             </table>
@@ -400,18 +295,13 @@
     </div>
 
     <!-- PRESCRIPTIONS -->
-    <div class="card mb-4">
+    <div class="section-card">
         <div class="section-header">💊 Prescriptions</div>
-
         <div class="card-body">
-            <table class="table table-hover">
+            <table class="dash-table">
                 <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Medicines</th>
-                    </tr>
+                    <tr><th>Patient</th><th>Medicines</th></tr>
                 </thead>
-
                 <tbody>
                 {% for pres in prescriptions %}
                     <tr>
@@ -419,82 +309,66 @@
                         <td>{{ pres.medicines|linebreaksbr }}</td>
                     </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="2" class="text-center text-muted">
-                            No prescriptions available
-                        </td>
-                    </tr>
+                    <tr><td colspan="2">
+                        <div class="empty-state">
+                            <div class="empty-icon">💊</div>
+                            <p>No prescriptions available</p>
+                        </div>
+                    </td></tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- FHIR REPORTS SECTION -->
-    <div class="card mb-4">
+    <!-- FHIR REPORTS -->
+    <div class="section-card">
         <div class="section-header">📌 Uploaded FHIR Reports</div>
-
-        <div class="card-body">
-
+        <div class="card-body" style="padding: 20px;">
             {% if fhir_reports %}
                 {% for item in fhir_reports %}
-                    <div class="card p-3 mb-3">
-                        <h5 class="mb-2">👤 Patient: <b>{{ item.patient.user.username }}</b></h5>
-
-                        <table class="table table-sm table-hover">
+                    <div style="background:#f8faff; border-radius:12px; padding:16px; margin-bottom:16px; border-left: 4px solid #0d6efd;">
+                        <h6 style="font-weight:700; margin-bottom:12px;">👤 {{ item.patient.user.username }}</h6>
+                        <table class="dash-table">
                             <thead>
-                                <tr>
-                                    <th>Description</th>
-                                    <th>Content Type</th>
-                                    <th>View</th>
-                                </tr>
+                                <tr><th>Description</th><th>Type</th><th>View</th></tr>
                             </thead>
-
                             <tbody>
                             {% for entry in item.reports %}
                                 <tr>
                                     <td>{{ entry.resource.description|default:"No description" }}</td>
-
                                     <td>
                                         {% if entry.resource.content %}
                                             {% for c in entry.resource.content %}
-                                                {{ c.attachment.contentType|default:"N/A" }}
+                                                <span class="badge-fhir">{{ c.attachment.contentType|default:"N/A" }}</span>
                                             {% endfor %}
-                                        {% else %}
-                                            N/A
-                                        {% endif %}
+                                        {% else %}N/A{% endif %}
                                     </td>
-
                                     <td>
                                         {% if entry.resource.content %}
                                             {% for c in entry.resource.content %}
                                                 {% if c.attachment.url %}
-                                                    <a href="{{ c.attachment.url }}" target="_blank"
-                                                       class="btn btn-outline-primary btn-sm">
-                                                        View
-                                                    </a>
+                                                    <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm">View</a>
                                                 {% else %}
                                                     <span class="text-muted">Stored</span>
                                                 {% endif %}
                                             {% endfor %}
-                                        {% else %}
-                                            —
-                                        {% endif %}
+                                        {% else %}—{% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
-
                     </div>
                 {% endfor %}
             {% else %}
-                <p class="text-muted">No FHIR reports uploaded yet.</p>
+                <div class="empty-state">
+                    <div class="empty-icon">📌</div>
+                    <p>No FHIR reports uploaded yet</p>
+                </div>
             {% endif %}
-
         </div>
     </div>
 
 </div>
-
 {% endblock %}
