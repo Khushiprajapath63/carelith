@@ -5,7 +5,7 @@ from django.utils import timezone
 from .models import Patient, Appointment
 from records.models import Report, Prescription
 from access_control.models import PatientAccess
-
+from django.contrib import messages
 
 @login_required
 def patient_dashboard(request):
@@ -61,3 +61,23 @@ def secure_patient_view(request, access_id):
         'patient': patient,
         'access': access
     })
+
+@login_required
+def patient_settings(request):
+
+    patient = Patient.objects.get(user=request.user)
+
+    if request.method == "POST":
+
+        patient.age = request.POST.get("age")
+        patient.gender = request.POST.get("gender")
+
+        patient.save()
+
+        messages.success(request, "Profile updated successfully")
+
+        return redirect("patients:patient_settings")
+
+    return render(request, "patients/settings.html", {
+        "patient": patient
+    })    

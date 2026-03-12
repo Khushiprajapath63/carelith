@@ -1,9 +1,12 @@
 from django.urls import path
-from .views import patient_dashboard, secure_patient_view
+from .views import patient_dashboard, secure_patient_view, patient_settings
 
 app_name = "patients"
 
 urlpatterns = [
     path('dashboard/', patient_dashboard, name='patient_dashboard'),
     path('secure/<int:access_id>/', secure_patient_view, name='secure_patient_view'),
+
+    # NEW
+    path('settings/', patient_settings, name='patient_settings'),
 ]

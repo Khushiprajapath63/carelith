@@ -288,16 +288,36 @@
 
 <div class="container mt-4 pb-5">
 
-    <!-- TOP BAR -->
-    <div class="topbar d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4>🏥 Carelith Patient Portal</h4>
-            <small style="opacity:0.85;">Patient Dashboard | Logged in as: <b>{{ patient.user.username }}</b></small>
-        </div>
-        <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold" style="border-radius:10px;">
-            Logout
-        </a>
-    </div>
+   <!-- TOP BAR -->
+<div class="topbar d-flex justify-content-between align-items-center mb-4">
+
+<div>
+<h4>🏥 Carelith Patient Portal</h4>
+<small style="opacity:0.85;">
+Patient Dashboard | Logged in as: <b>{{ patient.user.username }}</b>
+</small>
+</div>
+
+<div class="d-flex gap-2">
+
+<a href="{% url 'patients:patient_settings' %}" 
+class="btn btn-secondary btn-sm fw-bold" 
+style="border-radius:10px;">
+⚙ Settings
+</a>
+
+<form method="post" action="{% url 'logout' %}">
+{% csrf_token %}
+<button type="submit"
+class="btn btn-light btn-sm fw-bold"
+style="border-radius:10px;">
+Logout
+</button>
+</form>
+
+</div>
+
+</div>
 
     <!-- PROFILE CARD -->
     <div class="profile-card mb-4">
