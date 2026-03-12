@@ -31,7 +31,7 @@ from fhir.utils import (
 def doctor_dashboard(request):
 
     try:
-        doctor = Doctor.objects.get(user=request.user)
+        doctor = get_object_or_404(Doctor, user=request.user)
     except Doctor.DoesNotExist:
         messages.error(request, "No Doctor profile found.")
         return redirect("login")
@@ -60,7 +60,9 @@ def doctor_dashboard(request):
 
     # ALL PATIENTS (for dashboard list)
     # patients doctor does NOT yet have access to
+    patients = Patient.objects.filter(id__in=verified_patients)
     all_patients = Patient.objects.exclude(id__in=verified_patients)
+    
     
 
     # ========================================================
