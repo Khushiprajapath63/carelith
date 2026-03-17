@@ -120,3 +120,6 @@ Uses Django ORM and migration system for schema management.
 ## Developed By
 
 Khushi Prajapath
+Manasa B
+Risha Rasheed P M
+Diptanshu 
