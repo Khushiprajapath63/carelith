@@ -1,482 +1,642 @@
 {% extends "base_dashboard.html" %}
 {% load static %}
 
-{% block title %}Doctor Dashboard{% endblock %}
+{% block title %}Doctor Dashboard — Carelith{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
+    :root {
+        --navy: #0a1628;
+        --navy-mid: #112240;
+        --blue: #1e6ff1;
+        --blue-light: #3d8ef8;
+        --cyan: #00d4ff;
+        --green: #00c896;
+        --amber: #ffb347;
+        --red: #ff5f6d;
+        --purple: #a78bfa;
+        --glass: rgba(255,255,255,0.04);
+        --glass-border: rgba(255,255,255,0.08);
+        --text-primary: #e8eeff;
+        --text-secondary: #7a8bb0;
+        --card-bg: #0f1e38;
+        --row-hover: rgba(30,111,241,0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-        background: #f5f8ff;
-        font-family: Arial, sans-serif;
+        background: var(--navy);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-primary);
+        min-height: 100vh;
     }
 
+    /* Animated background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: -40%;
+        left: -20%;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(30,111,241,0.12) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+        animation: pulse 8s ease-in-out infinite;
+    }
+    body::after {
+        content: '';
+        position: fixed;
+        bottom: -30%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+        animation: pulse 10s ease-in-out infinite reverse;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+    }
+
+    .dash-wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+    }
+
+    /* ── TOPBAR ── */
     .topbar {
-        background: #0d6efd;
-        padding: 18px 25px;
-        border-radius: 14px;
-        color: white;
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #1a3a6e, #0d2451);
+        border: 1px solid rgba(30,111,241,0.3);
+        border-radius: 20px;
+        padding: 20px 28px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+        animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+
+    .doctor-avatar {
+        width: 56px; height: 56px; border-radius: 16px;
+        background: linear-gradient(135deg, var(--blue), var(--cyan));
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Playfair Display', serif;
+        font-size: 20px; font-weight: 700; color: white;
+        box-shadow: 0 4px 16px rgba(30,111,241,0.4);
+        flex-shrink: 0;
     }
 
-    .topbar h4 {
-        margin: 0;
+    .topbar-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
         font-weight: 700;
-    }
-
-    .topbar small {
-        font-size: 14px;
-        opacity: 0.9;
-    }
-
-    .stats-card {
-        border-radius: 18px;
-        border: none;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-        transition: 0.2s;
-    }
-
-    .stats-card:hover {
-        transform: translateY(-3px);
-    }
-
-    .stats-card h2 {
-        font-weight: bold;
-    }
-
-    .section-header {
-        background: #0d6efd;
         color: white;
+        letter-spacing: -0.3px;
+    }
+    .topbar-sub {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    .topbar-sub b { color: var(--cyan); }
+
+    .topbar-actions { display: flex; gap: 10px; }
+
+    .btn-top {
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-settings {
+        background: rgba(255,255,255,0.07);
+        color: var(--text-primary);
+        border: 1px solid var(--glass-border);
+    }
+    .btn-settings:hover { background: rgba(255,255,255,0.12); color: white; }
+    .btn-logout {
+        background: rgba(255,95,109,0.15);
+        color: #ff8f9a;
+        border: 1px solid rgba(255,95,109,0.2);
+    }
+    .btn-logout:hover { background: rgba(255,95,109,0.25); color: #ffb3bc; }
+
+    /* ── ALERTS ── */
+    .alert-box {
+        border-radius: 12px;
         padding: 12px 18px;
-        font-weight: bold;
-        border-radius: 14px 14px 0px 0px;
+        margin-bottom: 16px;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid;
+        animation: fadeIn 0.3s ease;
+    }
+    .alert-success { background: rgba(0,200,150,0.1); border-color: rgba(0,200,150,0.3); color: #00c896; }
+    .alert-error, .alert-danger { background: rgba(255,95,109,0.1); border-color: rgba(255,95,109,0.3); color: #ff5f6d; }
+    .alert-warning { background: rgba(255,179,71,0.1); border-color: rgba(255,179,71,0.3); color: #ffb347; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── STAT CARDS ── */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: 18px;
+        padding: 24px 22px;
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        animation: fadeUp 0.5s ease both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        border-radius: 18px 18px 0 0;
+    }
+    .stat-card.blue::before { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+    .stat-card.green::before { background: linear-gradient(90deg, var(--green), #00e5b3); }
+    .stat-card.purple::before { background: linear-gradient(90deg, var(--purple), #c4b5fd); }
+
+    .stat-icon-bg {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; margin-bottom: 14px;
+    }
+    .blue .stat-icon-bg { background: rgba(30,111,241,0.15); }
+    .green .stat-icon-bg { background: rgba(0,200,150,0.15); }
+    .purple .stat-icon-bg { background: rgba(167,139,250,0.15); }
+
+    .stat-num {
+        font-size: 42px;
+        font-weight: 700;
+        font-family: 'Playfair Display', serif;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+    .blue .stat-num { color: var(--blue-light); }
+    .green .stat-num { color: var(--green); }
+    .purple .stat-num { color: var(--purple); }
+
+    .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        animation: fadeUp 0.5s ease both;
+        animation-delay: 0.4s;
+    }
+
+    .section-head {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,255,255,0.02);
+    }
+    .section-head-icon {
+        width: 34px; height: 34px; border-radius: 10px;
+        background: rgba(30,111,241,0.15);
+        display: flex; align-items: center; justify-content: center;
         font-size: 16px;
     }
-
-    .table thead {
-        background: #f0f4ff;
-    }
-
-    .badge-pending {
-        background-color: #ffc107;
-        color: black;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .badge-explained {
-        background-color: #198754;
+    .section-head-title {
+        font-size: 15px;
+        font-weight: 700;
         color: white;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
+    }
+    .section-head-count {
+        margin-left: auto;
+        background: rgba(30,111,241,0.2);
+        color: var(--blue-light);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid rgba(30,111,241,0.3);
     }
 
-    .badge-verified {
-        background-color: #198754;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
+    /* ── TABLE ── */
+    .dash-table { width: 100%; border-collapse: collapse; }
+    .dash-table thead th {
+        padding: 12px 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--glass-border);
+        background: rgba(255,255,255,0.01);
     }
-
-    .badge-notverified {
-        background-color: #dc3545;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: bold;
+    .dash-table tbody tr {
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        transition: background 0.15s;
     }
-
-    .table td, .table th {
-        vertical-align: middle;
-    }
-
-    .card {
-        border-radius: 18px;
-        border: none;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .btn-sm {
-        border-radius: 10px;
-        font-weight: bold;
-    }
-
-    .btn-action {
-        min-width: 110px;
-    }
-
-    .mini-title {
-        font-weight: bold;
+    .dash-table tbody tr:hover { background: var(--row-hover); }
+    .dash-table tbody tr:last-child { border-bottom: none; }
+    .dash-table tbody td {
+        padding: 15px 20px;
         font-size: 14px;
-        color: #6c757d;
+        vertical-align: middle;
+        color: var(--text-primary);
     }
+
+    .patient-name { font-weight: 600; color: white; font-size: 14px; }
+    .patient-handle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* ── BADGES ── */
+    .badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 4px 11px; border-radius: 20px;
+        font-size: 11px; font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .badge-verified   { background: rgba(0,200,150,0.15); color: var(--green); border: 1px solid rgba(0,200,150,0.25); }
+    .badge-unverified { background: rgba(255,95,109,0.12); color: var(--red); border: 1px solid rgba(255,95,109,0.2); }
+    .badge-pending    { background: rgba(255,179,71,0.12); color: var(--amber); border: 1px solid rgba(255,179,71,0.2); }
+    .badge-explained  { background: rgba(0,200,150,0.12); color: var(--green); border: 1px solid rgba(0,200,150,0.2); }
+    .badge-fhir       { background: rgba(30,111,241,0.15); color: var(--blue-light); border: 1px solid rgba(30,111,241,0.25); }
+    .badge-nofhir     { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-action {
+        padding: 6px 13px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid;
+        transition: all 0.15s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    .btn-otp    { background: rgba(255,179,71,0.12); color: var(--amber); border-color: rgba(255,179,71,0.25); }
+    .btn-otp:hover { background: rgba(255,179,71,0.22); color: #ffc76a; }
+    .btn-verify { background: rgba(0,200,150,0.12); color: var(--green); border-color: rgba(0,200,150,0.25); }
+    .btn-verify:hover { background: rgba(0,200,150,0.22); color: #00e5b3; }
+    .btn-fhir   { background: rgba(30,111,241,0.12); color: var(--blue-light); border-color: rgba(30,111,241,0.25); }
+    .btn-fhir:hover { background: rgba(30,111,241,0.22); color: #6aadff; }
+    .btn-explain{ background: rgba(167,139,250,0.12); color: var(--purple); border-color: rgba(167,139,250,0.25); }
+    .btn-explain:hover { background: rgba(167,139,250,0.22); color: #c4b5fd; }
+    .btn-view   { background: rgba(0,212,255,0.1); color: var(--cyan); border-color: rgba(0,212,255,0.2); }
+    .btn-view:hover { background: rgba(0,212,255,0.18); color: #4de4ff; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--text-secondary);
+    }
+    .empty-icon { font-size: 44px; margin-bottom: 10px; opacity: 0.4; }
+    .empty-text { font-size: 14px; }
+
+    /* ── FHIR ITEM ── */
+    .fhir-patient-block {
+        margin: 16px 20px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+    .fhir-patient-head {
+        padding: 12px 16px;
+        background: rgba(30,111,241,0.08);
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--blue-light);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    /* logout form inline */
+    .logout-form { display: inline; }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="dash-wrap">
 
-<div class="container mt-4">
-
- <!-- TOP BAR -->
-<div class="topbar d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4>🏥 Carelith Hospital Portal</h4>
-        <small>
-            Doctor Dashboard | Logged in as: <b>Dr. {{ doctor.user.username }}</b>
-        </small>
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="doctor-avatar">Dr</div>
+            <div>
+                <div class="topbar-title">🏥 Carelith Medical Portal</div>
+                <div class="topbar-sub">
+                    Logged in as <b>Dr. {{ doctor.user.username }}</b>
+                    {% if doctor.specialization %} &nbsp;·&nbsp; {{ doctor.specialization }}{% endif %}
+                    {% if doctor.hospital %} &nbsp;·&nbsp; {{ doctor.hospital.name }}{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <a href="{% url 'doctor_app:doctor_settings' %}" class="btn-top btn-settings">⚙ Settings</a>
+            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="btn-top btn-logout">⏻ Logout</button>
+            </form>
+        </div>
     </div>
 
-    <div>
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-light btn-sm fw-bold">
-                Logout
-            </button>
-        </form>
-    </div>
-</div>
-
-    <!-- MESSAGES -->
+    <!-- ALERTS -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+            <div class="alert-box alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
 
-    <!-- STATS -->
-    <div class="row mb-4">
-
-        <div class="col-md-4">
-            <div class="card stats-card text-center p-3">
-                <h6 class="text-muted">Total Appointments</h6>
-                <h2>{{ appointments.count }}</h2>
-            </div>
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+        <div class="stat-card blue">
+            <div class="stat-icon-bg">📅</div>
+            <div class="stat-num">{{ appointments.count }}</div>
+            <div class="stat-label">Total Appointments</div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card stats-card text-center p-3">
-                <h6 class="text-muted">Total Reports</h6>
-                <h2>{{ reports.count }}</h2>
-            </div>
+        <div class="stat-card green">
+            <div class="stat-icon-bg">📄</div>
+            <div class="stat-num">{{ reports.count }}</div>
+            <div class="stat-label">Patient Reports</div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card stats-card text-center p-3">
-                <h6 class="text-muted">Total Prescriptions</h6>
-                <h2>{{ prescriptions.count }}</h2>
-            </div>
+        <div class="stat-card purple">
+            <div class="stat-icon-bg">💊</div>
+            <div class="stat-num">{{ prescriptions.count }}</div>
+            <div class="stat-label">Prescriptions</div>
         </div>
-
     </div>
-    <!-- PATIENT LIST -->
-<div class="card mb-4">
-    <div class="section-header">👥 Registered Patients</div>
 
-    <div class="card-body">
-        <table class="table table-hover">
+    <!-- REGISTERED PATIENTS -->
+    <div class="section-card">
+        <div class="section-head">
+            <div class="section-head-icon">👥</div>
+            <div class="section-head-title">Registered Patients</div>
+            <div class="section-head-count">{{ all_patients.count }} total</div>
+        </div>
+        <table class="dash-table">
             <thead>
                 <tr>
-                    <th>Patient Name</th>
+                    <th>Patient</th>
                     <th>Email</th>
-                    <th>FHIR ID</th>
+                    <th>FHIR Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-
             <tbody>
-            {% for patient in patients %}
+            {% for patient in all_patients %}
                 <tr>
-
                     <td>
-                        <b>{{ patient.user.first_name }} {{ patient.user.last_name }}</b>
-                        <br>
-                        <small class="text-muted">{{ patient.user.username }}</small>
+                        <div class="patient-name">{{ patient.user.first_name }} {{ patient.user.last_name }}</div>
+                        <div class="patient-handle">@{{ patient.user.username }}</div>
                     </td>
-
-                    <td>
-                        {{ patient.user.email|default:"—" }}
-                    </td>
-
+                    <td style="color:var(--text-secondary);">{{ patient.user.email|default:"—" }}</td>
                     <td>
                         {% if patient.fhir_patient_id %}
-                            <span class="badge-verified">FHIR Linked</span>
+                            <span class="badge badge-fhir">✓ FHIR Linked</span>
                         {% else %}
-                            <span class="badge-notverified">Not Linked</span>
+                            <span class="badge badge-nofhir">Not Linked</span>
                         {% endif %}
                     </td>
-
                     <td>
-
-                        <a href="{% url 'doctor_app:request_patient_access' patient.id %}"
-                           class="btn btn-warning btn-sm btn-action">
-                           Request OTP
-                        </a>
-
-                        <a href="{% url 'doctor_app:view_patient_fhir_records' patient.id %}"
-                           class="btn btn-outline-info btn-sm btn-action ms-1">
-                           View Records
-                        </a>
-
+                        <a href="{% url 'doctor_app:request_patient_access' patient.id %}" class="btn-action btn-otp">🔐 Request OTP</a>
+                        <a href="{% url 'doctor_app:view_patient_fhir_records' patient.id %}" class="btn-action btn-fhir ms-1">📋 View Records</a>
                     </td>
-
                 </tr>
-
             {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted">
-                        No patients registered yet
-                    </td>
-                </tr>
+                <tr><td colspan="4">
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <div class="empty-text">No patients registered yet</div>
+                    </div>
+                </td></tr>
             {% endfor %}
             </tbody>
-
         </table>
     </div>
-</div>
+
     <!-- APPOINTMENTS -->
-    <div class="card mb-4">
-        <div class="section-header">📅 Appointments</div>
-
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Access Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                {% for appt in appointments %}
-                    <tr>
-                        <td><b>{{ appt.patient.user.username }}</b></td>
-
-                        <td>
-                            {% if appt.started_at %}
-                                {{ appt.started_at|date:"M d, Y" }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if appt.started_at %}
-                                {{ appt.started_at|time:"h:i A" }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if appt.patient.patientaccess_set.last and appt.patient.patientaccess_set.last.is_verified %}
-                                <span class="badge-verified">Verified</span>
-                            {% else %}
-                                <span class="badge-notverified">Not Verified</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            <a href="{% url 'doctor_app:request_patient_access' appt.patient.id %}"
-                               class="btn btn-warning btn-sm btn-action">
-                                Request OTP
-                            </a>
-
-                            {% if appt.patient.patientaccess_set.last %}
-                                <a href="{% url 'doctor_app:verify_patient_otp' appt.patient.patientaccess_set.last.id %}"
-                                   class="btn btn-success btn-sm btn-action ms-1">
-                                    Verify OTP
-                                </a>
-                            {% endif %}
-
-                            <a href="{% url 'doctor_app:view_patient_fhir_records' appt.patient.id %}"
-                               class="btn btn-outline-info btn-sm btn-action ms-1">
-                               View FHIR
-                            </a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            No appointments available
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="section-card">
+        <div class="section-head">
+            <div class="section-head-icon">📅</div>
+            <div class="section-head-title">Appointments</div>
+            <div class="section-head-count">{{ appointments.count }} total</div>
         </div>
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Access Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for appt in appointments %}
+                <tr>
+                    <td><div class="patient-name">{{ appt.patient.user.username }}</div></td>
+                    <td style="color:var(--text-secondary);">
+                        {% if appt.started_at %}{{ appt.started_at|date:"M d, Y" }}{% else %}—{% endif %}
+                    </td>
+                    <td style="color:var(--text-secondary);">
+                        {% if appt.started_at %}{{ appt.started_at|time:"h:i A" }}{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if appt.patient.patientaccess_set.last and appt.patient.patientaccess_set.last.is_verified %}
+                            <span class="badge badge-verified">✓ Verified</span>
+                        {% else %}
+                            <span class="badge badge-unverified">Not Verified</span>
+                        {% endif %}
+                    </td>
+                    <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <a href="{% url 'doctor_app:request_patient_access' appt.patient.id %}" class="btn-action btn-otp">🔐 OTP</a>
+                        {% if appt.patient.patientaccess_set.last %}
+                            <a href="{% url 'doctor_app:verify_patient_otp' appt.patient.patientaccess_set.last.id %}" class="btn-action btn-verify">✓ Verify</a>
+                        {% endif %}
+                        <a href="{% url 'doctor_app:view_patient_fhir_records' appt.patient.id %}" class="btn-action btn-fhir">📋 FHIR</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <div class="empty-text">No appointments available</div>
+                    </div>
+                </td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- REPORTS -->
-    <div class="card mb-4">
-        <div class="section-header">📄 Patient Reports</div>
-
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Test Name</th>
-                        <th>File</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                {% for report in reports %}
-                    <tr>
-                        <td><b>{{ report.patient.user.username }}</b></td>
-                        <td>{{ report.title }}</td>
-
-                        <td>
-                            {% if report.file %}
-                                <a href="{{ report.file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                    View
-                                </a>
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if report.status == "pending" %}
-                                <span class="badge-pending">Pending</span>
-                            {% else %}
-                                <span class="badge-explained">Explained</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if report.status == "pending" %}
-                                <a href="{% url 'doctor_app:explain_report' report.id %}"
-                                   class="btn btn-primary btn-sm">
-                                    Explain
-                                </a>
-                            {% else %}
-                                <span class="text-success fw-bold">Done</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            No reports available
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="section-card">
+        <div class="section-head">
+            <div class="section-head-icon">📄</div>
+            <div class="section-head-title">Patient Reports</div>
+            <div class="section-head-count">{{ reports.count }} total</div>
         </div>
+        <table class="dash-table">
+            <thead>
+                <tr><th>Patient</th><th>Test Name</th><th>File</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+            {% for report in reports %}
+                <tr>
+                    <td><div class="patient-name">{{ report.patient.user.username }}</div></td>
+                    <td style="color:var(--text-secondary);">{{ report.title }}</td>
+                    <td>
+                        {% if report.file %}
+                            <a href="{{ report.file.url }}" target="_blank" class="btn-action btn-view">👁 View</a>
+                        {% else %}<span style="color:var(--text-secondary);">—</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if report.status == "pending" %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% else %}
+                            <span class="badge badge-explained">✓ Explained</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if report.status == "pending" %}
+                            <a href="{% url 'doctor_app:explain_report' report.id %}" class="btn-action btn-explain">✏ Explain</a>
+                        {% else %}
+                            <span style="color:var(--green); font-weight:700; font-size:13px;">✓ Done</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">
+                    <div class="empty-state">
+                        <div class="empty-icon">📄</div>
+                        <div class="empty-text">No reports available</div>
+                    </div>
+                </td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- PRESCRIPTIONS -->
-    <div class="card mb-4">
-        <div class="section-header">💊 Prescriptions</div>
-
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Medicines</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                {% for pres in prescriptions %}
-                    <tr>
-                        <td><b>{{ pres.encounter.patient.user.username }}</b></td>
-                        <td>{{ pres.medicines|linebreaksbr }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="2" class="text-center text-muted">
-                            No prescriptions available
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="section-card">
+        <div class="section-head">
+            <div class="section-head-icon">💊</div>
+            <div class="section-head-title">Prescriptions</div>
+            <div class="section-head-count">{{ prescriptions.count }} total</div>
         </div>
+        <table class="dash-table">
+            <thead>
+                <tr><th>Patient</th><th>Medicines</th></tr>
+            </thead>
+            <tbody>
+            {% for pres in prescriptions %}
+                <tr>
+                    <td><div class="patient-name">{{ pres.encounter.patient.user.username }}</div></td>
+                    <td style="color:var(--text-secondary);">{{ pres.medicines|linebreaksbr }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="2">
+                    <div class="empty-state">
+                        <div class="empty-icon">💊</div>
+                        <div class="empty-text">No prescriptions available</div>
+                    </div>
+                </td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <!-- FHIR REPORTS SECTION -->
-    <div class="card mb-4">
-        <div class="section-header">📌 Uploaded FHIR Reports</div>
-
-        <div class="card-body">
-
-            {% if fhir_reports %}
-                {% for item in fhir_reports %}
-                    <div class="card p-3 mb-3">
-                        <h5 class="mb-2">👤 Patient: <b>{{ item.patient.user.username }}</b></h5>
-
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Description</th>
-                                    <th>Content Type</th>
-                                    <th>View</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                            {% for entry in item.reports %}
-                                <tr>
-                                    <td>{{ entry.resource.description|default:"No description" }}</td>
-
-                                    <td>
-                                        {% if entry.resource.content %}
-                                            {% for c in entry.resource.content %}
-                                                {{ c.attachment.contentType|default:"N/A" }}
-                                            {% endfor %}
-                                        {% else %}
-                                            N/A
-                                        {% endif %}
-                                    </td>
-
-                                    <td>
-                                        {% if entry.resource.content %}
-                                            {% for c in entry.resource.content %}
-                                                {% if c.attachment.url %}
-                                                    <a href="{{ c.attachment.url }}" target="_blank"
-                                                       class="btn btn-outline-primary btn-sm">
-                                                        View
-                                                    </a>
-                                                {% else %}
-                                                    <span class="text-muted">Stored</span>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            —
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p class="text-muted">No FHIR reports uploaded yet.</p>
-            {% endif %}
-
+    <!-- FHIR REPORTS -->
+    <div class="section-card">
+        <div class="section-head">
+            <div class="section-head-icon">📌</div>
+            <div class="section-head-title">Uploaded FHIR Reports</div>
         </div>
+        {% if fhir_reports %}
+            {% for item in fhir_reports %}
+                <div class="fhir-patient-block">
+                    <div class="fhir-patient-head">👤 {{ item.patient.user.username }}</div>
+                    <table class="dash-table">
+                        <thead>
+                            <tr><th>Description</th><th>Type</th><th>View</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in item.reports %}
+                            <tr>
+                                <td>{{ entry.resource.description|default:"No description" }}</td>
+                                <td>
+                                    {% if entry.resource.content %}
+                                        {% for c in entry.resource.content %}
+                                            <span class="badge badge-fhir">{{ c.attachment.contentType|default:"N/A" }}</span>
+                                        {% endfor %}
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.resource.content %}
+                                        {% for c in entry.resource.content %}
+                                            {% if c.attachment.url %}
+                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn-action btn-view">👁 View</a>
+                                            {% else %}
+                                                <span style="color:var(--text-secondary); font-size:12px;">Stored</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}—{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+            <div style="height:16px;"></div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📌</div>
+                <div class="empty-text">No FHIR reports uploaded yet</div>
+            </div>
+        {% endif %}
     </div>
 
 </div>
-
 {% endblock %}
