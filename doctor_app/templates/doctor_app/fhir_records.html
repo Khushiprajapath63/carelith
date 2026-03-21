@@ -297,8 +297,8 @@
                         <label>Qualifications</label>
                         <div class="mt-1">
                             {% if doctor.qualification %}
-                                {% for q in doctor.qualification.split(",") %}
-                                    <span class="qual-tag">{{ q|strip }}</span>
+                                {% for q in qualifications %}
+                                  <span class="qual-tag">{{ q }}</span>
                                 {% endfor %}
                             {% else %}
                                 <span style="color:var(--text-secondary);">—</span>
