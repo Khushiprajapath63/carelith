@@ -4,162 +4,278 @@
 {% block title %}FHIR Records - {{ patient.user.username }}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
-    body { background: #f0f4ff; font-family: 'Segoe UI', Arial, sans-serif; }
-
-    .page-header {
-        background: linear-gradient(135deg, #0d6efd, #0a58ca);
-        color: white;
-        padding: 20px 28px;
-        border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(13,110,253,0.3);
-        margin-bottom: 24px;
+    :root {
+        --navy: #0a1628;
+        --card-bg: #0f1e38;
+        --blue: #1e6ff1;
+        --blue-light: #3d8ef8;
+        --cyan: #00d4ff;
+        --green: #00c896;
+        --amber: #ffb347;
+        --red: #ff5f6d;
+        --purple: #a78bfa;
+        --glass-border: rgba(255,255,255,0.08);
+        --text-primary: #e8eeff;
+        --text-secondary: #7a8bb0;
+        --row-hover: rgba(30,111,241,0.06);
     }
-    .page-header h3 { margin: 0; font-weight: 700; font-size: 22px; }
-    .page-header small { opacity: 0.85; font-size: 13px; }
 
+    * { box-sizing: border-box; }
+
+    body {
+        background: var(--navy);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-primary);
+        min-height: 100vh;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: -30%; left: -10%;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(30,111,241,0.10) 0%, transparent 70%);
+        pointer-events: none; z-index: 0;
+    }
+    body::after {
+        content: '';
+        position: fixed;
+        bottom: -20%; right: -10%;
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+        pointer-events: none; z-index: 0;
+    }
+
+    .page-wrap {
+        position: relative; z-index: 1;
+        max-width: 1100px; margin: 0 auto;
+        padding: 28px 24px 60px;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+        background: linear-gradient(135deg, #1a3a6e, #0d2451);
+        border: 1px solid rgba(30,111,241,0.3);
+        border-radius: 20px;
+        padding: 20px 28px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    .page-header-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px; font-weight: 700; color: white; margin-bottom: 4px;
+    }
+    .page-header-sub { font-size: 13px; color: var(--text-secondary); }
+    .page-header-sub b { color: var(--cyan); }
+
+    .btn-back {
+        background: rgba(255,255,255,0.07);
+        color: var(--text-primary);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px; padding: 9px 18px;
+        font-size: 13px; font-weight: 600;
+        text-decoration: none; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.12); color: white; }
+
+    /* ── INFO CARDS ── */
     .info-card {
-        background: white;
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
         border-radius: 16px;
-        padding: 22px 26px;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-        margin-bottom: 20px;
-        border-left: 5px solid #0d6efd;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        border-left: 4px solid var(--blue);
+        animation: fadeUp 0.5s ease both;
     }
     .info-card h5 {
-        font-weight: 700;
-        color: #0d6efd;
-        margin-bottom: 14px;
-        font-size: 16px;
-        border-bottom: 1px solid #e8f0ff;
+        font-weight: 700; color: var(--blue-light);
+        margin-bottom: 14px; font-size: 15px;
+        border-bottom: 1px solid var(--glass-border);
         padding-bottom: 8px;
     }
     .info-row { display: flex; flex-wrap: wrap; gap: 18px; }
-    .info-item { flex: 1; min-width: 180px; }
+    .info-item { flex: 1; min-width: 160px; }
     .info-item label {
-        font-size: 11px;
-        font-weight: 700;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: block;
-        margin-bottom: 3px;
+        font-size: 10px; font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase; letter-spacing: 0.8px;
+        display: block; margin-bottom: 4px;
     }
-    .info-item span { font-size: 14px; font-weight: 600; color: #212529; }
+    .info-item span { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
     .badge-fhir {
-        background: #e8f0ff;
-        color: #0d6efd;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .tab-wrapper {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-    .nav-tabs {
-        border-bottom: 2px solid #e8f0ff;
-        padding: 0 20px;
-        background: #f8faff;
-    }
-    .nav-tabs .nav-link {
-        border: none;
-        color: #6c757d;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 14px 20px;
-        border-radius: 0;
-        border-bottom: 3px solid transparent;
-        margin-bottom: -2px;
-        transition: all 0.2s;
-    }
-    .nav-tabs .nav-link:hover { color: #0d6efd; background: none; }
-    .nav-tabs .nav-link.active {
-        color: #0d6efd;
-        border-bottom: 3px solid #0d6efd;
-        background: none;
-    }
-    .tab-content { padding: 24px; }
-
-    .upload-zone {
-        border: 2px dashed #c5d5ff;
-        border-radius: 12px;
-        padding: 28px;
-        text-align: center;
-        background: #f8faff;
-        transition: 0.2s;
-    }
-    .upload-zone:hover { border-color: #0d6efd; background: #f0f4ff; }
-    .upload-zone .upload-icon { font-size: 36px; margin-bottom: 10px; }
-    .upload-zone p { color: #6c757d; font-size: 13px; margin: 0; }
-
-    .reports-table { border-collapse: separate; border-spacing: 0; width: 100%; }
-    .reports-table thead th {
-        background: #f0f4ff;
-        color: #495057;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 12px 16px;
-        border-bottom: 2px solid #dee2f0;
-    }
-    .reports-table tbody tr { border-bottom: 1px solid #f0f4ff; transition: background 0.15s; }
-    .reports-table tbody tr:hover { background: #f8faff; }
-    .reports-table tbody td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
-    .reports-table tbody tr:last-child td { border-bottom: none; }
-
-    .badge-hospital { background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .badge-current  { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .badge-secure   { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .badge-pdf  { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-    .badge-img  { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-    .badge-json { background: #f3e8ff; color: #6b21a8; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-
-    .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; }
-    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    .empty-state p { font-size: 15px; margin: 0; }
-
-    .note-box {
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-size: 13px;
-        color: #1e40af;
-        margin-top: 16px;
+        background: rgba(30,111,241,0.15);
+        color: var(--blue-light);
+        border: 1px solid rgba(30,111,241,0.25);
+        padding: 4px 10px; border-radius: 20px;
+        font-size: 11px; font-weight: 700;
     }
 
     .qual-tag {
         display: inline-block;
-        background: #f0f4ff;
-        color: #0d6efd;
-        border-radius: 8px;
-        padding: 3px 10px;
-        font-size: 12px;
-        font-weight: 600;
-        margin: 2px;
+        background: rgba(30,111,241,0.1);
+        border: 1px solid rgba(30,111,241,0.2);
+        color: var(--blue-light);
+        border-radius: 6px; padding: 2px 8px;
+        font-size: 11px; font-weight: 600; margin: 2px;
     }
+
+    /* ── ENCOUNTER LIST ── */
+    .encounter-list { padding-left: 0; list-style: none; margin: 0; }
+    .encounter-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: 14px; color: var(--text-primary);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .encounter-list li:last-child { border-bottom: none; }
+    .encounter-list li b { color: white; }
+    .encounter-list li span { color: var(--text-secondary); font-size: 12px; }
+
+    /* ── TABS ── */
+    .tab-wrapper {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s ease both;
+        animation-delay: 0.3s;
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid var(--glass-border);
+        padding: 0 16px;
+        background: rgba(255,255,255,0.02);
+        display: flex; gap: 4px;
+    }
+    .nav-tabs .nav-link {
+        border: none; background: none;
+        color: var(--text-secondary);
+        font-weight: 600; font-size: 13px;
+        padding: 14px 18px;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1px;
+        transition: all 0.2s; border-radius: 0;
+    }
+    .nav-tabs .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); }
+    .nav-tabs .nav-link.active {
+        color: var(--blue-light);
+        border-bottom: 3px solid var(--blue-light);
+        background: none;
+    }
+    .tab-content { padding: 22px; }
+
+    /* ── TABLE ── */
+    .reports-table { border-collapse: collapse; width: 100%; }
+    .reports-table thead th {
+        padding: 11px 16px;
+        font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.8px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--glass-border);
+        background: rgba(255,255,255,0.01);
+    }
+    .reports-table tbody tr {
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        transition: background 0.15s;
+    }
+    .reports-table tbody tr:hover { background: var(--row-hover); }
+    .reports-table tbody tr:last-child { border-bottom: none; }
+    .reports-table tbody td {
+        padding: 13px 16px; font-size: 14px;
+        vertical-align: middle; color: var(--text-primary);
+    }
+
+    /* ── BADGES ── */
+    .badge-hospital { background: rgba(255,179,71,0.12); color: var(--amber); border: 1px solid rgba(255,179,71,0.2); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-current  { background: rgba(0,200,150,0.12); color: var(--green); border: 1px solid rgba(0,200,150,0.2); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-secure   { background: rgba(30,111,241,0.12); color: var(--blue-light); border: 1px solid rgba(30,111,241,0.2); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-pdf  { background: rgba(255,95,109,0.12); color: var(--red); border: 1px solid rgba(255,95,109,0.2); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-img  { background: rgba(255,179,71,0.12); color: var(--amber); border: 1px solid rgba(255,179,71,0.2); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-json { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+        border: 2px dashed rgba(30,111,241,0.3);
+        border-radius: 14px; padding: 32px;
+        text-align: center;
+        background: rgba(30,111,241,0.04);
+        transition: all 0.2s; cursor: pointer;
+    }
+    .upload-zone:hover {
+        border-color: var(--blue-light);
+        background: rgba(30,111,241,0.08);
+    }
+    .upload-icon { font-size: 36px; margin-bottom: 10px; }
+    .upload-zone h6 { font-weight: 700; color: white; margin-bottom: 6px; }
+    .upload-zone p { color: var(--text-secondary); font-size: 13px; margin: 0; }
+
+    .btn-upload {
+        background: linear-gradient(135deg, var(--blue), var(--blue-light));
+        color: white; border: none; border-radius: 10px;
+        padding: 10px 24px; font-size: 14px; font-weight: 700;
+        cursor: pointer; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-upload:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(30,111,241,0.4); }
+
+    .btn-view {
+        background: rgba(0,212,255,0.1); color: var(--cyan);
+        border: 1px solid rgba(0,212,255,0.2);
+        border-radius: 8px; padding: 5px 12px;
+        font-size: 12px; font-weight: 600;
+        text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+        transition: all 0.15s;
+    }
+    .btn-view:hover { background: rgba(0,212,255,0.18); color: #4de4ff; }
+
+    /* ── NOTE BOX ── */
+    .note-box {
+        background: rgba(30,111,241,0.08);
+        border: 1px solid rgba(30,111,241,0.2);
+        border-radius: 10px; padding: 12px 16px;
+        font-size: 13px; color: var(--blue-light);
+        margin-top: 16px;
+    }
+
+    /* ── ALERT ── */
+    .alert-success { background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.3); color: var(--green); border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; }
+    .alert-danger, .alert-error { background: rgba(255,95,109,0.1); border: 1px solid rgba(255,95,109,0.3); color: var(--red); border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; }
+    .alert-warning { background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.3); color: var(--amber); border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-secondary); }
+    .empty-icon { font-size: 44px; margin-bottom: 10px; opacity: 0.35; }
+    .empty-state p { font-size: 14px; margin: 0; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4 py-3" style="max-width: 1100px; margin: auto;">
+<div class="page-wrap">
 
     <!-- PAGE HEADER -->
-    <div class="page-header d-flex justify-content-between align-items-center">
+    <div class="page-header">
         <div>
-            <h3>📋 FHIR Medical Records</h3>
-            <small>Patient: <b>{{ patient.user.username }}</b> &nbsp;|&nbsp; Date: {{ current_time|date:"d M Y" }} &nbsp;|&nbsp; Time: {{ current_time|time:"h:i A" }}</small>
+            <div class="page-header-title">📋 FHIR Medical Records</div>
+            <div class="page-header-sub">
+                Patient: <b>{{ patient.user.username }}</b>
+                &nbsp;·&nbsp; {{ current_time|date:"d M Y" }}
+                &nbsp;·&nbsp; {{ current_time|time:"h:i A" }}
+            </div>
         </div>
-        <a href="{% url 'doctor_app:doctor_dashboard' %}" class="btn btn-light fw-bold" style="border-radius:10px;">
-            ← Back to Dashboard
-        </a>
+        <a href="{% url 'doctor_app:doctor_dashboard' %}" class="btn-back">← Back to Dashboard</a>
     </div>
 
     <div class="row g-3 mb-3">
@@ -181,12 +297,11 @@
                         <label>Qualifications</label>
                         <div class="mt-1">
                             {% if doctor.qualification %}
-                                {% for q in doctor.qualification.split|join:"," %}
-                                    <span class="qual-tag">{{ q }}</span>
+                                {% for q in doctor.qualification.split(",") %}
+                                    <span class="qual-tag">{{ q|strip }}</span>
                                 {% endfor %}
-                                <span class="qual-tag">{{ doctor.qualification }}</span>
                             {% else %}
-                                <span class="text-muted">—</span>
+                                <span style="color:var(--text-secondary);">—</span>
                             {% endif %}
                         </div>
                     </div>
@@ -212,7 +327,7 @@
                         <span>{{ patient.id }}</span>
                     </div>
                     <div class="info-item">
-                        <label>FHIR Patient ID</label>
+                        <label>FHIR ID</label>
                         <span class="badge-fhir">{{ patient.fhir_patient_id|default:"Not Assigned" }}</span>
                     </div>
                     <div class="info-item">
@@ -236,114 +351,91 @@
     <div class="info-card">
         <h5>📅 Encounter History</h5>
         {% if patient.encounters.all %}
-            <ul style="padding-left:18px; margin:0;">
+            <ul class="encounter-list">
                 {% for encounter in patient.encounters.all %}
-                    <li style="margin-bottom:6px;">
+                    <li>
+                        <span style="color:var(--cyan); font-size:16px;">·</span>
                         <b>{{ encounter.reason }}</b>
-                        <span style="color:#6c757d; font-size:13px;">({{ encounter.started_at|date:"d M Y" }})</span>
+                        <span>({{ encounter.started_at|date:"d M Y" }})</span>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <span class="text-muted">No encounters recorded</span>
+            <span style="color:var(--text-secondary); font-size:14px;">No encounters recorded</span>
         {% endif %}
     </div>
 
-    <!-- TABS SECTION -->
+    <!-- TABS -->
     <div class="tab-wrapper">
         <ul class="nav nav-tabs" id="fhirTabs">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-all">
                     📂 All Records
                     {% if fhir_data and fhir_data.entry %}
-                        <span class="badge bg-primary ms-1" style="font-size:11px;">{{ fhir_data.entry|length }}</span>
+                        <span style="background:rgba(30,111,241,0.2);color:var(--blue-light);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:6px;">{{ fhir_data.entry|length }}</span>
                     {% endif %}
                 </button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mine">
-                    👨‍⚕️ My Reports
-                </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mine">👨‍⚕️ My Reports</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-other">
-                    🏥 Other Hospitals
-                </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-other">🏥 Other Hospitals</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload">
-                    ⬆️ Upload Report
-                </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload">⬆️ Upload Report</button>
             </li>
         </ul>
 
         <div class="tab-content" id="fhirTabContent">
 
-            <!-- ── TAB 1: ALL RECORDS ── -->
+            <!-- TAB 1: ALL RECORDS -->
             <div class="tab-pane fade show active" id="tab-all">
                 {% if fhir_data and fhir_data.entry %}
                     <table class="reports-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Description</th>
-                                <th>Uploaded By</th>
-                                <th>Type</th>
-                                <th>Source</th>
-                                <th>File</th>
+                                <th>#</th><th>Description</th><th>Uploaded By</th>
+                                <th>Type</th><th>Source</th><th>File</th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for entry in fhir_data.entry %}
                             {% with resource=entry.resource %}
                             <tr>
-                                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
-
+                                <td style="color:var(--text-secondary); font-size:12px;">{{ forloop.counter }}</td>
                                 <td>
                                     {% if resource.description %}
-                                        {% if "lab" in resource.description|lower %}
-                                            <span class="badge-secure">Lab</span>
-                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}
-                                            <span class="badge-hospital">Radiology</span>
+                                        {% if "lab" in resource.description|lower %}<span class="badge-secure">Lab</span>
+                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}<span class="badge-hospital">Radiology</span>
                                         {% endif %}
                                     {% endif %}
-                                    <b style="font-size:14px;">{{ resource.description|default:"Medical Report" }}</b>
+                                    <b style="font-size:14px; color:white;">{{ resource.description|default:"Medical Report" }}</b>
                                 </td>
-
                                 <td>
                                     {% if resource.author %}
                                         {% for author in resource.author %}
-                                            <span style="font-size:13px;">Dr. {{ author.display|default:"Unknown" }}</span>
+                                            <span style="font-size:13px; color:var(--blue-light);">Dr. {{ author.display|default:"Unknown" }}</span>
                                         {% endfor %}
                                     {% elif resource.description and doctor.user.username in resource.description %}
-                                        <span style="font-size:13px;">Dr. {{ doctor.user.username }}</span>
+                                        <span style="font-size:13px; color:var(--blue-light);">Dr. {{ doctor.user.username }}</span>
                                     {% else %}
-                                        <span class="text-muted">Unknown Doctor</span>
+                                        <span style="color:var(--text-secondary);">Unknown Doctor</span>
                                     {% endif %}
                                 </td>
-
                                 <td>
                                     {% if resource.content %}
                                         {% for c in resource.content %}
                                             {% with ct=c.attachment.contentType %}
-                                                {% if ct == "application/pdf" %}
-                                                    <span class="badge-pdf">PDF</span>
-                                                {% elif "image" in ct %}
-                                                    <span class="badge-img">IMAGE</span>
-                                                {% elif ct == "application/json" %}
-                                                    <span class="badge-json">JSON</span>
-                                                {% elif "xml" in ct %}
-                                                    <span class="badge-json">FHIR</span>
-                                                {% else %}
-                                                    <span class="badge-secure">FILE</span>
-                                                {% endif %}
+                                                {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
+                                                {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
+                                                {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
+                                                {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
+                                                {% else %}<span class="badge-secure">FILE</span>{% endif %}
                                             {% endwith %}
                                         {% endfor %}
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
+                                    {% else %}<span style="color:var(--text-secondary);">—</span>{% endif %}
                                 </td>
-
                                 <td>
                                     {% if resource.description %}
                                         {% if doctor.user.username in resource.description %}
@@ -351,23 +443,18 @@
                                         {% else %}
                                             <span class="badge-hospital">🏥 Other Hospital</span>
                                         {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
+                                    {% else %}<span style="color:var(--text-secondary);">—</span>{% endif %}
                                 </td>
-
                                 <td>
                                     {% if resource.content %}
                                         {% for c in resource.content %}
                                             {% if c.attachment.url %}
-                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">View</a>
+                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn-view">👁 View</a>
                                             {% else %}
-                                                <span class="badge-secure">Stored Securely</span>
+                                                <span class="badge-secure">Stored</span>
                                             {% endif %}
                                         {% endfor %}
-                                    {% else %}
-                                        —
-                                    {% endif %}
+                                    {% else %}—{% endif %}
                                 </td>
                             </tr>
                             {% endwith %}
@@ -375,64 +462,42 @@
                         </tbody>
                     </table>
                 {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">📭</div>
-                        <p>No FHIR records found for this patient.</p>
-                    </div>
+                    <div class="empty-state"><div class="empty-icon">📭</div><p>No FHIR records found for this patient.</p></div>
                 {% endif %}
             </div>
 
-            <!-- ── TAB 2: MY REPORTS ── -->
+            <!-- TAB 2: MY REPORTS -->
             <div class="tab-pane fade" id="tab-mine">
                 {% if fhir_data and fhir_data.entry %}
                     <table class="reports-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Description</th>
-                                <th>Type</th>
-                                <th>File</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>#</th><th>Description</th><th>Type</th><th>File</th></tr></thead>
                         <tbody>
                         {% for entry in fhir_data.entry %}
                             {% with resource=entry.resource %}
                             {% if doctor.user.username in resource.description %}
                             <tr>
-                                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+                                <td style="color:var(--text-secondary); font-size:12px;">{{ forloop.counter }}</td>
                                 <td>
                                     {% if resource.description %}
-                                        {% if "lab" in resource.description|lower %}
-                                            <span class="badge-secure">Lab</span>
-                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}
-                                            <span class="badge-hospital">Radiology</span>
-                                        {% endif %}
+                                        {% if "lab" in resource.description|lower %}<span class="badge-secure">Lab</span>
+                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}<span class="badge-hospital">Radiology</span>{% endif %}
                                     {% endif %}
-                                    <b>{{ resource.description|default:"Medical Report" }}</b>
+                                    <b style="color:white;">{{ resource.description|default:"Medical Report" }}</b>
                                 </td>
                                 <td>
-                                    {% if resource.content %}
-                                        {% for c in resource.content %}
-                                            {% with ct=c.attachment.contentType %}
-                                                {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
-                                                {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
-                                                {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
-                                                {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
-                                                {% else %}<span class="badge-secure">FILE</span>{% endif %}
-                                            {% endwith %}
-                                        {% endfor %}
-                                    {% endif %}
+                                    {% if resource.content %}{% for c in resource.content %}{% with ct=c.attachment.contentType %}
+                                        {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
+                                        {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
+                                        {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
+                                        {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
+                                        {% else %}<span class="badge-secure">FILE</span>{% endif %}
+                                    {% endwith %}{% endfor %}{% endif %}
                                 </td>
                                 <td>
-                                    {% if resource.content %}
-                                        {% for c in resource.content %}
-                                            {% if c.attachment.url %}
-                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">View</a>
-                                            {% else %}
-                                                <span class="badge-secure">Stored Securely</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
+                                    {% if resource.content %}{% for c in resource.content %}
+                                        {% if c.attachment.url %}<a href="{{ c.attachment.url }}" target="_blank" class="btn-view">👁 View</a>
+                                        {% else %}<span class="badge-secure">Stored</span>{% endif %}
+                                    {% endfor %}{% endif %}
                                 </td>
                             </tr>
                             {% endif %}
@@ -441,77 +506,49 @@
                         </tbody>
                     </table>
                 {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <p>You haven't uploaded any reports for this patient yet.</p>
-                    </div>
+                    <div class="empty-state"><div class="empty-icon">📝</div><p>You haven't uploaded any reports yet.</p></div>
                 {% endif %}
             </div>
 
-            <!-- ── TAB 3: OTHER HOSPITALS ── -->
+            <!-- TAB 3: OTHER HOSPITALS -->
             <div class="tab-pane fade" id="tab-other">
                 {% if fhir_data and fhir_data.entry %}
                     <table class="reports-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Description</th>
-                                <th>Uploaded By</th>
-                                <th>Type</th>
-                                <th>File</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>#</th><th>Description</th><th>Uploaded By</th><th>Type</th><th>File</th></tr></thead>
                         <tbody>
                         {% for entry in fhir_data.entry %}
                             {% with resource=entry.resource %}
                             {% if doctor.user.username not in resource.description %}
                             <tr>
-                                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+                                <td style="color:var(--text-secondary); font-size:12px;">{{ forloop.counter }}</td>
                                 <td>
                                     {% if resource.description %}
-                                        {% if "lab" in resource.description|lower %}
-                                            <span class="badge-secure">Lab</span>
-                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}
-                                            <span class="badge-hospital">Radiology</span>
-                                        {% endif %}
+                                        {% if "lab" in resource.description|lower %}<span class="badge-secure">Lab</span>
+                                        {% elif "mri" in resource.description|lower or "xray" in resource.description|lower %}<span class="badge-hospital">Radiology</span>{% endif %}
                                     {% endif %}
-                                    <b>{{ resource.description|default:"Medical Report" }}</b>
-                                    <div style="margin-top:4px;"><span class="badge-hospital">🏥 External Record</span></div>
+                                    <b style="color:white;">{{ resource.description|default:"Medical Report" }}</b>
+                                    <div style="margin-top:4px;"><span class="badge-hospital">🏥 External</span></div>
                                 </td>
                                 <td>
-                                    {% if resource.author %}
-                                        {% for author in resource.author %}
-                                            <span style="font-size:13px;">Dr. {{ author.display|default:"Unknown" }}</span>
-                                        {% endfor %}
-                                    {% elif resource.description and doctor.user.username in resource.description %}
-                                        <span style="font-size:13px;">Dr. {{ doctor.user.username }}</span>
-                                    {% else %}
-                                        <span class="text-muted">Unknown Doctor</span>
-                                    {% endif %}
+                                    {% if resource.author %}{% for author in resource.author %}
+                                        <span style="font-size:13px; color:var(--blue-light);">Dr. {{ author.display|default:"Unknown" }}</span>
+                                    {% endfor %}
+                                    {% else %}<span style="color:var(--text-secondary);">Unknown Doctor</span>{% endif %}
                                 </td>
                                 <td>
-                                    {% if resource.content %}
-                                        {% for c in resource.content %}
-                                            {% with ct=c.attachment.contentType %}
-                                                {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
-                                                {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
-                                                {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
-                                                {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
-                                                {% else %}<span class="badge-secure">FILE</span>{% endif %}
-                                            {% endwith %}
-                                        {% endfor %}
-                                    {% endif %}
+                                    {% if resource.content %}{% for c in resource.content %}{% with ct=c.attachment.contentType %}
+                                        {% if ct == "application/pdf" %}<span class="badge-pdf">PDF</span>
+                                        {% elif "image" in ct %}<span class="badge-img">IMAGE</span>
+                                        {% elif ct == "application/json" %}<span class="badge-json">JSON</span>
+                                        {% elif "xml" in ct %}<span class="badge-json">FHIR</span>
+                                        {% else %}<span class="badge-secure">FILE</span>{% endif %}
+                                    {% endwith %}{% endfor %}{% endif %}
                                 </td>
                                 <td>
-                                    {% if resource.content %}
-                                        {% for c in resource.content %}
-                                            {% if c.attachment.url %}
-                                                <a href="{{ c.attachment.url }}" target="_blank" class="btn btn-outline-primary btn-sm" style="border-radius:8px; font-size:12px;">View</a>
-                                            {% else %}
-                                                <span class="badge-secure">Stored Securely</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
+                                    {% if resource.content %}{% for c in resource.content %}
+                                        {% if c.attachment.url %}<a href="{{ c.attachment.url }}" target="_blank" class="btn-view">👁 View</a>
+                                        {% else %}<span class="badge-secure">Stored</span>{% endif %}
+                                    {% endfor %}{% endif %}
                                 </td>
                             </tr>
                             {% endif %}
@@ -519,54 +556,41 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    <div class="note-box mt-3">
-                        ℹ️ <b>Note:</b> Reports from other hospitals are view-only. Download is restricted per hospital privacy policy.
-                    </div>
+                    <div class="note-box">ℹ️ <b>Note:</b> Reports from other hospitals are view-only per hospital privacy policy.</div>
                 {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">🏥</div>
-                        <p>No records from other hospitals found.</p>
-                    </div>
+                    <div class="empty-state"><div class="empty-icon">🏥</div><p>No records from other hospitals found.</p></div>
                 {% endif %}
             </div>
 
-            <!-- ── TAB 4: UPLOAD ── -->
+            <!-- TAB 4: UPLOAD -->
             <div class="tab-pane fade" id="tab-upload">
                 <form method="POST" enctype="multipart/form-data" action="{% url 'doctor_app:upload_patient_report_to_fhir' patient.id %}">
                     {% csrf_token %}
-                    <div class="upload-zone" onclick="document.getElementById('reportFile').click();" style="cursor:pointer;">
+                    <div class="upload-zone" onclick="document.getElementById('reportFile').click();">
                         <div class="upload-icon">📤</div>
-                        <h6 style="font-weight:700; color:#374151;">Click to Select a File</h6>
+                        <h6>Click to Select a File</h6>
                         <p>Allowed formats: PDF / JPG / PNG / JSON</p>
-                        <p id="fileName" style="color:#0d6efd; font-weight:600; margin-top:8px;"></p>
+                        <p id="fileName" style="color:var(--blue-light); font-weight:600; margin-top:8px;"></p>
                     </div>
                     <input type="file" id="reportFile" name="report" accept=".pdf,.jpg,.jpeg,.png,.json" style="display:none;"
                            onchange="document.getElementById('fileName').textContent = this.files[0]?.name || ''">
-
-                    <div class="mt-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4" style="border-radius:10px; font-weight:700;">
-                            ⬆️ Upload to FHIR
-                        </button>
-                        <span style="font-size:12px; color:#9ca3af; align-self:center;">
-                            This report will be stored securely in the FHIR server
-                        </span>
+                    <div style="margin-top:16px; display:flex; align-items:center; gap:14px;">
+                        <button type="submit" class="btn-upload">⬆️ Upload to FHIR</button>
+                        <span style="font-size:12px; color:var(--text-secondary);">Stored securely in the FHIR server</span>
                     </div>
                 </form>
 
                 {% if messages %}
-                    <div class="mt-3">
+                    <div style="margin-top:16px;">
                     {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" style="border-radius:10px;">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
+                        <div class="alert-{{ message.tags }}">{{ message }}</div>
                     {% endfor %}
                     </div>
                 {% endif %}
             </div>
 
-        </div><!-- end tab-content -->
-    </div><!-- end tab-wrapper -->
+        </div>
+    </div>
 
 </div>
 {% endblock %}

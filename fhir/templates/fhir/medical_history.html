@@ -1,45 +1,286 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}FHIR Medical History{% endblock %}
 
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #0a1628;
+        --card-bg: #0f1e38;
+        --blue: #1e6ff1;
+        --blue-light: #3d8ef8;
+        --cyan: #00d4ff;
+        --green: #00c896;
+        --amber: #ffb347;
+        --purple: #a78bfa;
+        --glass-border: rgba(255,255,255,0.08);
+        --text-primary: #e8eeff;
+        --text-secondary: #7a8bb0;
+    }
+
+    body {
+        background: var(--navy);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-primary);
+        min-height: 100vh;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: -30%; left: -10%;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(30,111,241,0.10) 0%, transparent 70%);
+        pointer-events: none; z-index: 0;
+    }
+
+    .page-wrap {
+        position: relative; z-index: 1;
+        max-width: 900px; margin: 0 auto;
+        padding: 32px 24px 60px;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+        background: linear-gradient(135deg, #1a3a6e, #0d2451);
+        border: 1px solid rgba(30,111,241,0.3);
+        border-radius: 20px;
+        padding: 22px 28px;
+        margin-bottom: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+
+    .page-header-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px; font-weight: 700; color: white;
+        margin-bottom: 4px;
+    }
+    .page-header-sub { font-size: 13px; color: var(--text-secondary); }
+
+    .btn-back {
+        background: rgba(255,255,255,0.07);
+        color: var(--text-primary);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 9px 18px;
+        font-size: 13px; font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.12); color: white; }
+
+    /* ── ENCOUNTER CARD ── */
+    .encounter-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        animation: fadeUp 0.5s ease both;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    .encounter-card:nth-child(1) { animation-delay: 0.1s; }
+    .encounter-card:nth-child(2) { animation-delay: 0.15s; }
+    .encounter-card:nth-child(3) { animation-delay: 0.2s; }
+
+    .encounter-head {
+        background: linear-gradient(135deg, rgba(30,111,241,0.15), rgba(0,212,255,0.08));
+        border-bottom: 1px solid var(--glass-border);
+        padding: 18px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .enc-id {
+        font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 1px;
+        color: var(--cyan);
+        margin-bottom: 4px;
+    }
+    .enc-reason {
+        font-family: 'Playfair Display', serif;
+        font-size: 18px; font-weight: 700; color: white;
+        margin-bottom: 6px;
+    }
+    .enc-meta {
+        display: flex; flex-wrap: wrap; gap: 10px;
+        margin-top: 4px;
+    }
+    .enc-meta-tag {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 4px 12px;
+        font-size: 12px; font-weight: 600;
+        color: var(--text-secondary);
+    }
+    .enc-meta-tag span { color: var(--text-primary); }
+
+    .enc-date {
+        background: rgba(30,111,241,0.12);
+        border: 1px solid rgba(30,111,241,0.2);
+        border-radius: 10px;
+        padding: 8px 16px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .enc-date .date-label { font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .enc-date .date-value { font-size: 14px; font-weight: 700; color: var(--blue-light); margin-top: 2px; }
+
+    /* ── OBSERVATIONS ── */
+    .obs-section { padding: 20px 24px; }
+    .obs-title {
+        font-size: 12px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.8px;
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .obs-title::after {
+        content: ''; flex: 1;
+        height: 1px; background: var(--glass-border);
+    }
+
+    .obs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+    }
+
+    .obs-item {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: background 0.15s;
+    }
+    .obs-item:hover { background: rgba(30,111,241,0.06); }
+
+    .obs-code {
+        font-size: 12px; font-weight: 700;
+        color: var(--blue-light);
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+    .obs-value {
+        font-size: 22px; font-weight: 700;
+        font-family: 'Playfair Display', serif;
+        color: white; line-height: 1;
+    }
+    .obs-unit {
+        font-size: 13px; color: var(--text-secondary);
+        margin-left: 4px; font-weight: 400;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .obs-doctor {
+        font-size: 11px; color: var(--text-secondary);
+        margin-top: 6px;
+    }
+    .obs-doctor b { color: var(--text-primary); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center; padding: 36px 20px;
+        color: var(--text-secondary);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.35; }
+    .empty-text { font-size: 14px; }
+
+    /* ── NO ENCOUNTERS ── */
+    .no-encounters {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-secondary);
+    }
+    .no-encounters .big-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+    .no-encounters h4 { font-size: 18px; color: var(--text-primary); margin-bottom: 8px; }
+    .no-encounters p { font-size: 14px; }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="page-wrap">
 
-<h3 class="mb-4">📜 Previous Medical History (FHIR)</h3>
-
-{% for enc in encounters %}
-<div class="card mb-3 shadow-sm">
-    <div class="card-body">
-        <h5>
-            🏥 Encounter #{{ enc.id }}
-        </h5>
-
-        <p class="text-muted">
-            Hospital: {{ enc.hospital.name }} <br>
-            Reason: {{ enc.reason }} <br>
-            Date: {{ enc.started_at }}
-        </p>
-
-        <hr>
-
-        <h6>🧪 Observations</h6>
-
-        {% if enc.observations.all %}
-            <ul class="list-group">
-                {% for obs in enc.observations.all %}
-                <li class="list-group-item">
-                    <strong>{{ obs.code }}</strong> :
-                    {{ obs.value }} {{ obs.unit }}
-                    <br>
-                    <small class="text-muted">
-                        Recorded by Dr. {{ obs.doctor.user.username }}
-                    </small>
-                </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p class="text-muted">No observations</p>
-        {% endif %}
+    <!-- HEADER -->
+    <div class="page-header">
+        <div>
+            <div class="page-header-title">📜 FHIR Medical History</div>
+            <div class="page-header-sub">Complete encounter and observation records</div>
+        </div>
+        <a href="javascript:history.back()" class="btn-back">← Back</a>
     </div>
-</div>
-{% endfor %}
 
+    <!-- ENCOUNTERS -->
+    {% if encounters %}
+        {% for enc in encounters %}
+        <div class="encounter-card">
+
+            <!-- ENCOUNTER HEAD -->
+            <div class="encounter-head">
+                <div>
+                    <div class="enc-id">Encounter #{{ enc.id }}</div>
+                    <div class="enc-reason">{{ enc.reason|default:"General Consultation" }}</div>
+                    <div class="enc-meta">
+                        <div class="enc-meta-tag">🏥 <span>{{ enc.hospital.name|default:"—" }}</span></div>
+                    </div>
+                </div>
+                <div class="enc-date">
+                    <div class="date-label">Date</div>
+                    <div class="date-value">{{ enc.started_at|date:"M d, Y"|default:"—" }}</div>
+                </div>
+            </div>
+
+            <!-- OBSERVATIONS -->
+            <div class="obs-section">
+                <div class="obs-title">🧪 Observations</div>
+
+                {% if enc.observations.all %}
+                    <div class="obs-grid">
+                        {% for obs in enc.observations.all %}
+                        <div class="obs-item">
+                            <div class="obs-code">{{ obs.code }}</div>
+                            <div>
+                                <span class="obs-value">{{ obs.value }}</span>
+                                <span class="obs-unit">{{ obs.unit }}</span>
+                            </div>
+                            <div class="obs-doctor">
+                                Recorded by <b>Dr. {{ obs.doctor.user.username }}</b>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">🔬</div>
+                        <div class="empty-text">No observations recorded for this encounter</div>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="no-encounters">
+            <div class="big-icon">📭</div>
+            <h4>No Medical History Found</h4>
+            <p>No encounter records are available for this patient yet.</p>
+        </div>
+    {% endif %}
+
+</div>
 {% endblock %}
