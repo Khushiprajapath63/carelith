@@ -300,23 +300,20 @@ def patient_view_fhir_records(request, patient_id):
 
     if patient.user != request.user:
         messages.error(request, "You are not authorized to view these records.")
-        return redirect("patient_dashboard")
+        return redirect("patients:patient_dashboard")
 
     all_records, my_records, other_records = [], [], []
 
     if patient.fhir_patient_id:
-
         try:
             fhir_data = get_document_references(patient.fhir_patient_id)
             all_records, my_records, other_records = _build_records(fhir_data)
-
         except Exception as e:
             print(f"[FHIR ERROR] patient_view_fhir_records: {e}")
             messages.error(request, "Could not fetch FHIR records.")
 
-    return render(request, "doctor_app/fhir_records.html", {
+    return render(request, "fhir/patient_fhir_records.html", {
         "patient": patient,
-        "doctor": None,
         "all_records": all_records,
         "my_records": my_records,
         "other_records": other_records,

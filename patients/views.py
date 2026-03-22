@@ -64,20 +64,19 @@ def secure_patient_view(request, access_id):
 
 @login_required
 def patient_settings(request):
-
-    patient = Patient.objects.get(user=request.user)
+    try:
+        patient = Patient.objects.get(user=request.user)
+    except Patient.DoesNotExist:
+        messages.error(request, "Patient profile not found.")
+        return redirect("patients:patient_dashboard")
 
     if request.method == "POST":
-
         patient.age = request.POST.get("age")
         patient.gender = request.POST.get("gender")
-
         patient.save()
-
         messages.success(request, "Profile updated successfully")
-
         return redirect("patients:patient_settings")
 
     return render(request, "patients/settings.html", {
         "patient": patient
-    })    
+    })  
