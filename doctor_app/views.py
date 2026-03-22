@@ -1,6 +1,7 @@
 import random
 import os
 import sendgrid
+import cloudinary.uploader
 from sendgrid.helpers.mail import Mail
 from datetime import timedelta
 
@@ -247,21 +248,21 @@ def view_patient_fhir_records(request, patient_id):
     fhir_data = None
 
     if patient.fhir_patient_id:
-
         try:
             fhir_data = get_document_references(patient.fhir_patient_id)
-
         except Exception as e:
             print(f"[FHIR ERROR] {e}")
             messages.error(request, "FHIR fetch failed.")
+
+    qualifications = [q.strip() for q in doctor.qualification.split(",") if q.strip()] if doctor.qualification else []
 
     return render(request, "doctor_app/fhir_records.html", {
         "patient": patient,
         "fhir_data": fhir_data,
         "doctor": doctor,
         "current_time": timezone.now(),
+        "qualifications": qualifications,
     })
-
 
 # ============================================================
 # UPLOAD REPORT TO FHIR
@@ -314,7 +315,14 @@ def upload_patient_report_to_fhir(request, patient_id):
             )
 
         # ⭐ Cloudinary URL
-        file_url = report_file.url
+        
+        upload_result = cloudinary.uploader.upload(
+            report_file,
+            resource_type="raw",
+            folder="carelith/reports/",
+            public_id=f"patient_{patient.id}_{report_file.name}"
+        )
+        file_url = upload_result.get("secure_url")
 
         description_text = f"Report uploaded by Dr. {doctor.user.username}"
 
