@@ -2,10 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from doctor_app.models import Doctor
 from patients.models import Patient
-
-
-def home(request):
-    return render(request, "home.html")
+from receptionist.models import Receptionist
 
 
 def post_login_redirect(request):
@@ -19,6 +16,9 @@ def post_login_redirect(request):
 
     if Patient.objects.filter(user=user).exists():
         return redirect('/patients/dashboard/')
+
+    if Receptionist.objects.filter(user=user).exists():
+        return redirect('/receptionist/dashboard/')
 
     # fallback safety
     return redirect('/accounts/login/')

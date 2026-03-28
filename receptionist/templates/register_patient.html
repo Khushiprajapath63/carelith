@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Register Patient{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+    :root { --navy:#0a1628; --card-bg:#0f1e38; --green:#00c896; --glass-border:rgba(255,255,255,0.08); --text-primary:#e8eeff; --text-secondary:#7a8bb0; }
+    body { background: var(--navy); font-family: 'DM Sans', sans-serif; color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .form-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 36px 40px; width: 100%; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .form-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: white; margin-bottom: 6px; }
+    .form-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .form-control, .form-select { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 10px; padding: 11px 14px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
+    .form-control:focus, .form-select:focus { border-color: var(--green); }
+    .form-control::placeholder { color: var(--text-secondary); }
+    .form-select option { background: var(--card-bg); }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, var(--green), #2dd4bf); color: white; border: none; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,200,150,0.4); }
+    .btn-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 20px; transition: color 0.2s; }
+    .btn-back:hover { color: var(--text-primary); }
+    .alert-box { border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; font-weight: 500; border: 1px solid; }
+    .alert-error { background: rgba(255,95,109,0.1); border-color: rgba(255,95,109,0.3); color: #ff5f6d; }
+    .alert-success { background: rgba(0,200,150,0.1); border-color: rgba(0,200,150,0.3); color: #00c896; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <a href="{% url 'receptionist:receptionist_dashboard' %}" class="btn-back">← Back to Dashboard</a>
+    <div class="form-title">➕ Register New Patient</div>
+    <div class="form-sub">Create a new patient account in the system</div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-box alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" placeholder="e.g. John_Doe" required>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" placeholder="patient@email.com">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Set a password" required>
+        </div>
+        <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="age" class="form-control" placeholder="Age">
+        </div>
+        <div class="form-group">
+            <label>Gender</label>
+            <select name="gender" class="form-select">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Hospital</label>
+            <select name="hospital" class="form-select">
+                <option value="">— Select Hospital —</option>
+                {% for hospital in hospitals %}
+                    <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn-submit">✓ Register Patient</button>
+    </form>
+</div>
+{% endblock %}

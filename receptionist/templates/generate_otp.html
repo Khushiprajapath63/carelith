@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Generate OTP{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+    :root { --navy:#0a1628; --card-bg:#0f1e38; --amber:#ffb347; --glass-border:rgba(255,255,255,0.08); --text-primary:#e8eeff; --text-secondary:#7a8bb0; }
+    body { background: var(--navy); font-family: 'DM Sans', sans-serif; color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .form-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 36px 40px; width: 100%; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .form-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: white; margin-bottom: 6px; }
+    .form-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+    .patient-info { background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.2); border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; }
+    .patient-info .label { font-size: 11px; font-weight: 700; color: var(--amber); text-transform: uppercase; letter-spacing: 0.8px; }
+    .patient-info .value { font-size: 16px; font-weight: 700; color: white; margin-top: 3px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .form-select { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 10px; padding: 11px 14px; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
+    .form-select:focus { border-color: var(--amber); }
+    .form-select option { background: var(--card-bg); }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, var(--amber), #ffd580); color: #1a1000; border: none; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,179,71,0.4); }
+    .btn-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 20px; transition: color 0.2s; }
+    .btn-back:hover { color: var(--text-primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <a href="{% url 'receptionist:receptionist_dashboard' %}" class="btn-back">← Back to Dashboard</a>
+    <div class="form-title">🔐 Generate OTP</div>
+    <div class="form-sub">Generate an OTP for doctor to access patient records</div>
+
+    <div class="patient-info">
+        <div class="label">Patient</div>
+        <div class="value">{{ patient.user.username }}</div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Select Doctor</label>
+            <select name="doctor" class="form-select" required>
+                <option value="">— Select Doctor —</option>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}">Dr. {{ doctor.user.username }} — {{ doctor.specialization|default:"General" }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn-submit">🔐 Generate OTP</button>
+    </form>
+</div>
+{% endblock %}

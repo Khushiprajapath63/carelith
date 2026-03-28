@@ -202,6 +202,7 @@ INSTALLED_APPS = [
     'fhir',
     'cloudinary',
     'cloudinary_storage',
+    'receptionist',
 ]
 
 
