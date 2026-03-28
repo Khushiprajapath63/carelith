@@ -3,7 +3,10 @@ from django.contrib.auth.decorators import login_required
 from doctor_app.models import Doctor
 from patients.models import Patient
 from receptionist.models import Receptionist
+from django.http import HttpResponse
 
+def home(request):
+    return HttpResponse("Welcome to Carelith")
 
 def post_login_redirect(request):
     user = request.user
