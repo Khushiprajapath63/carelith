@@ -179,7 +179,7 @@ SECRET_KEY = 'django-insecure-2&8&4$n9$)9o426e5zpm6hlq5i22@_lxh(vvnpa)u7@h28fhx#
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "carelith.onrender.com",
+    "carelith-9dab.onrender.com",
 ]
 
 # Application definition
