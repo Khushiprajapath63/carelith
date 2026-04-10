@@ -6,7 +6,7 @@ cloudinary==1.44.1
 cryptography==46.0.5
 dj-database-url==3.1.2
 Django==5.1.7
-django-cloudinary-storage==0.3.0
+django-cloudinary-storage==0.3.0post1
 django-storages==1.14.6
 google-api-core==2.30.0
 google-auth==2.48.0
