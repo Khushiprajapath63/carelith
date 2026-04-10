@@ -1,6 +1,3 @@
-"""
-Django settings for carelith project.
-"""
 import os
 from pathlib import Path
 import dj_database_url
@@ -8,12 +5,9 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
-
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    "carelith-9dab.onrender.com",
-]
+ALLOWED_HOSTS = ["carelith-9dab.onrender.com"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
