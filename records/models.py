@@ -5,7 +5,7 @@ from patients.models import Patient
 from doctor_app.models import Doctor
 from laboratory.models import Laboratory
 from hospital_app.models import Hospital
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
+from cloudinary.storage import RawMediaCloudinaryStorage
 
 
 # =========================
