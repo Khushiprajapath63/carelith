@@ -189,6 +189,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',        # ← move this up, BEFORE staticfiles
     'django.contrib.staticfiles',
     
     'patients',
@@ -201,7 +202,6 @@ INSTALLED_APPS = [
     'notifications',
     'fhir',
     'cloudinary',
-    'cloudinary_storage',
     'receptionist',
 ]
 
