@@ -5,7 +5,6 @@ from patients.models import Patient
 from doctor_app.models import Doctor
 from laboratory.models import Laboratory
 from hospital_app.models import Hospital
-from cloudinary.storage import RawMediaCloudinaryStorage
 
 
 # =========================
@@ -112,7 +111,6 @@ class Report(models.Model):
     title = models.CharField(max_length=255)
 
     file = models.FileField(
-        storage=RawMediaCloudinaryStorage(),
         upload_to="reports/",
         null=True,
         blank=True
@@ -193,7 +191,7 @@ class Prescription(models.Model):
 
 
 # =========================
-# Audit Log (NEW FEATURE)
+# Audit Log
 # =========================
 class AuditLog(models.Model):
 
