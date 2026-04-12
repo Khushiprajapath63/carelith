@@ -1,0 +1,12 @@
+[
+  {"model": "laboratory.laboratory", "pk": 1, "fields": {"name": "SRL Diagnostics", "phone": "08011111111", "address": "123 MG Road, Bangalore", "location": "Bangalore"}},
+  {"model": "laboratory.laboratory", "pk": 2, "fields": {"name": "Dr Lal PathLabs", "phone": "01122222222", "address": "45 Connaught Place, New Delhi", "location": "New Delhi"}},
+  {"model": "laboratory.laboratory", "pk": 3, "fields": {"name": "Metropolis Healthcare", "phone": "02233333333", "address": "78 Andheri West, Mumbai", "location": "Mumbai"}},
+  {"model": "laboratory.laboratory", "pk": 4, "fields": {"name": "Thyrocare Technologies", "phone": "02244444444", "address": "12 Navi Mumbai", "location": "Mumbai"}},
+  {"model": "laboratory.laboratory", "pk": 5, "fields": {"name": "Apollo Diagnostics", "phone": "04055555555", "address": "56 Jubilee Hills, Hyderabad", "location": "Hyderabad"}},
+  {"model": "laboratory.laboratory", "pk": 6, "fields": {"name": "Vijaya Diagnostics", "phone": "04066666666", "address": "89 Banjara Hills, Hyderabad", "location": "Hyderabad"}},
+  {"model": "laboratory.laboratory", "pk": 7, "fields": {"name": "Neuberg Diagnostics", "phone": "08077777777", "address": "34 Koramangala, Bangalore", "location": "Bangalore"}},
+  {"model": "laboratory.laboratory", "pk": 8, "fields": {"name": "Agilus Diagnostics", "phone": "02288888888", "address": "67 Dadar, Mumbai", "location": "Mumbai"}},
+  {"model": "laboratory.laboratory", "pk": 9, "fields": {"name": "Pathkind Labs", "phone": "01199999999", "address": "23 Rohini, New Delhi", "location": "New Delhi"}},
+  {"model": "laboratory.laboratory", "pk": 10, "fields": {"name": "CORE Diagnostics", "phone": "01244141414", "address": "11 Gurugram", "location": "Gurugram"}}
+]
