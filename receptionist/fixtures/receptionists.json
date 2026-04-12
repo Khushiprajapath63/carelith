@@ -1,0 +1,23 @@
+[
+  {"model": "auth.user", "pk": 47, "fields": {"username": "rec.priya", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Priya", "last_name": "Sharma", "email": "rec.priya@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 48, "fields": {"username": "rec.anita", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Anita", "last_name": "Verma", "email": "rec.anita@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 49, "fields": {"username": "rec.sunita", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Sunita", "last_name": "Gupta", "email": "rec.sunita@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 50, "fields": {"username": "rec.kavita", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Kavita", "last_name": "Singh", "email": "rec.kavita@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 51, "fields": {"username": "rec.meena", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Meena", "last_name": "Patel", "email": "rec.meena@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 52, "fields": {"username": "rec.ritu", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Ritu", "last_name": "Nair", "email": "rec.ritu@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 53, "fields": {"username": "rec.pooja", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Pooja", "last_name": "Iyer", "email": "rec.pooja@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 54, "fields": {"username": "rec.neha", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Neha", "last_name": "Rao", "email": "rec.neha@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 55, "fields": {"username": "rec.divya", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Divya", "last_name": "Menon", "email": "rec.divya@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+  {"model": "auth.user", "pk": 56, "fields": {"username": "rec.anjali", "password": "pbkdf2_sha256$720000$abc$dummy", "first_name": "Anjali", "last_name": "Reddy", "email": "rec.anjali@carelith.com", "is_staff": false, "is_active": true, "is_superuser": false}},
+
+  {"model": "receptionist.receptionist", "pk": 1, "fields": {"user": 47, "hospital": 1, "contact_number": "9800000001"}},
+  {"model": "receptionist.receptionist", "pk": 2, "fields": {"user": 48, "hospital": 2, "contact_number": "9800000002"}},
+  {"model": "receptionist.receptionist", "pk": 3, "fields": {"user": 49, "hospital": 3, "contact_number": "9800000003"}},
+  {"model": "receptionist.receptionist", "pk": 4, "fields": {"user": 50, "hospital": 4, "contact_number": "9800000004"}},
+  {"model": "receptionist.receptionist", "pk": 5, "fields": {"user": 51, "hospital": 5, "contact_number": "9800000005"}},
+  {"model": "receptionist.receptionist", "pk": 6, "fields": {"user": 52, "hospital": 6, "contact_number": "9800000006"}},
+  {"model": "receptionist.receptionist", "pk": 7, "fields": {"user": 53, "hospital": 7, "contact_number": "9800000007"}},
+  {"model": "receptionist.receptionist", "pk": 8, "fields": {"user": 54, "hospital": 8, "contact_number": "9800000008"}},
+  {"model": "receptionist.receptionist", "pk": 9, "fields": {"user": 55, "hospital": 9, "contact_number": "9800000009"}},
+  {"model": "receptionist.receptionist", "pk": 10, "fields": {"user": 56, "hospital": 10, "contact_number": "9800000010"}}
+]
