@@ -1,0 +1,12 @@
+[
+  {"model": "hospital_app.hospital", "pk": 1, "fields": {"name": "Apollo Hospitals", "location": "Bangalore", "email": "apollo@example.com", "phone": "08012345678", "fhir_organization_id": "1001"}},
+  {"model": "hospital_app.hospital", "pk": 2, "fields": {"name": "Fortis Hospital", "location": "Mumbai", "email": "fortis@example.com", "phone": "02212345678", "fhir_organization_id": "1002"}},
+  {"model": "hospital_app.hospital", "pk": 3, "fields": {"name": "AIIMS Delhi", "location": "New Delhi", "email": "aiims@example.com", "phone": "01112345678", "fhir_organization_id": "1003"}},
+  {"model": "hospital_app.hospital", "pk": 4, "fields": {"name": "Manipal Hospital", "location": "Bangalore", "email": "manipal@example.com", "phone": "08087654321", "fhir_organization_id": "1004"}},
+  {"model": "hospital_app.hospital", "pk": 5, "fields": {"name": "Narayana Health", "location": "Bangalore", "email": "narayana@example.com", "phone": "08011112222", "fhir_organization_id": "1005"}},
+  {"model": "hospital_app.hospital", "pk": 6, "fields": {"name": "Medanta Hospital", "location": "Gurugram", "email": "medanta@example.com", "phone": "01244141414", "fhir_organization_id": "1006"}},
+  {"model": "hospital_app.hospital", "pk": 7, "fields": {"name": "Max Super Speciality", "location": "New Delhi", "email": "max@example.com", "phone": "01126515050", "fhir_organization_id": "1007"}},
+  {"model": "hospital_app.hospital", "pk": 8, "fields": {"name": "Kokilaben Hospital", "location": "Mumbai", "email": "kokilaben@example.com", "phone": "02230999999", "fhir_organization_id": "1008"}},
+  {"model": "hospital_app.hospital", "pk": 9, "fields": {"name": "Christian Medical College", "location": "Vellore", "email": "cmc@example.com", "phone": "04162281000", "fhir_organization_id": "1009"}},
+  {"model": "hospital_app.hospital", "pk": 10, "fields": {"name": "Tata Memorial Hospital", "location": "Mumbai", "email": "tata@example.com", "phone": "02224177000", "fhir_organization_id": "1010"}}
+]
