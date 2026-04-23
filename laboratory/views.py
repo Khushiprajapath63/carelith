@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+import cloudinary.uploader
+
 from .models import Laboratory
 from records.models import Report
 from patients.models import Patient
@@ -27,15 +29,26 @@ def lab_dashboard(request):
         else:
             try:
                 patient = Patient.objects.get(id=patient_id)
+
+                # Upload to Cloudinary directly
+                upload_result = cloudinary.uploader.upload(
+                    file,
+                    resource_type="raw",
+                    folder="carelith/lab_reports/",
+                    public_id=f"patient_{patient_id}_{file.name}"
+                )
+                file_url = upload_result.get("secure_url")
+
                 Report.objects.create(
                     patient=patient,
                     laboratory=lab,
                     title=title,
-                    file=file,
+                    file=file_url,
                     status="pending"
                 )
                 messages.success(request, f"Report '{title}' uploaded successfully!")
                 return redirect('lab_dashboard')
+
             except Patient.DoesNotExist:
                 messages.error(request, "Invalid patient selected.")
 
