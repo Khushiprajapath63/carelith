@@ -20,14 +20,14 @@ def get_or_create_encounter(patient, doctor=None):
 
 @receiver(post_save, sender=Prescription)
 def attach_encounter_to_prescription(sender, instance, created, **kwargs):
-    if created and instance.encounter is None:
-        encounter = get_or_create_encounter(
-            patient=instance.doctor.patient_profile,
-            doctor=instance.doctor
-        )
-        instance.encounter = encounter
-        instance.save()
+    if created and not instance.encounter:
+        encounter = Encounter.objects.filter(
+            patient=instance.patient   # ✅ FIX HERE
+        ).order_by("-started_at").first()
 
+        if encounter:
+            instance.encounter = encounter
+            instance.save()
 
 @receiver(post_save, sender=Report)
 def attach_encounter_to_report(sender, instance, created, **kwargs):
