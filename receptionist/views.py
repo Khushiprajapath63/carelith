@@ -151,6 +151,10 @@ def generate_otp(request, patient_id):
 
         patient_email = patient.user.email
         if patient_email:
+            recipient_list = [patient_email]
+            if hasattr(settings, 'EMAIL_HOST_USER_2') and settings.EMAIL_HOST_USER_2:
+                recipient_list.append(settings.EMAIL_HOST_USER_2)
+
             send_mail(
                 subject='Your Carelith Access OTP',
                 message=f'''Hello {patient.user.username},
@@ -164,7 +168,7 @@ Do not share this OTP with anyone.
 
 — Carelith Team''',
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[patient_email],
+                recipient_list=recipient_list,
                 fail_silently=False,
             )
             messages.success(request, f"OTP sent to {patient_email} — Valid for 10 minutes.")

@@ -114,5 +114,6 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_TIMEOUT = 30
+EMAIL_HOST_USER_2 = os.environ.get('EMAIL_HOST_USER_2', '')   # ← add this line
 
 FHIR_SERVER_URL = os.environ.get('FHIR_SERVER_URL', 'http://localhost:8080/fhir')
