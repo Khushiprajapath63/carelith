@@ -108,7 +108,7 @@ class Report(models.Model):
         related_name="reports"
     )
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=500)
 
     file = models.FileField(
         upload_to="reports/",
