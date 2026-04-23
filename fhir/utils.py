@@ -4,28 +4,21 @@ import os
 import json
 from django.conf import settings
 
-# ============================================================
-# Toggle this to switch between HAPI FHIR and Local Storage
-# Set USE_LOCAL_STORAGE = True if HAPI server is not running
-# ============================================================
 USE_LOCAL_STORAGE = True
 FHIR_BASE_URL = "http://localhost:8080/fhir"
 
-# Local storage paths
-LOCAL_FHIR_DIR = os.path.join(settings.MEDIA_ROOT, "fhir_local")
+LOCAL_FHIR_DIR = os.path.join(settings.MEDIA_ROOT, "fhir_local") if settings.MEDIA_ROOT else "/tmp/fhir_local"
 LOCAL_PATIENTS_DIR = os.path.join(LOCAL_FHIR_DIR, "patients")
 LOCAL_DOCUMENTS_DIR = os.path.join(LOCAL_FHIR_DIR, "documents")
 LOCAL_INDEX_FILE = os.path.join(LOCAL_FHIR_DIR, "index.json")
 
 
 def _ensure_dirs():
-    """Make sure local storage folders exist."""
     os.makedirs(LOCAL_PATIENTS_DIR, exist_ok=True)
     os.makedirs(LOCAL_DOCUMENTS_DIR, exist_ok=True)
 
 
 def _load_index():
-    """Load the local document index."""
     if os.path.exists(LOCAL_INDEX_FILE):
         with open(LOCAL_INDEX_FILE, "r") as f:
             return json.load(f)
@@ -33,7 +26,6 @@ def _load_index():
 
 
 def _save_index(index):
-    """Save the local document index."""
     _ensure_dirs()
     with open(LOCAL_INDEX_FILE, "w") as f:
         json.dump(index, f, indent=2)
@@ -64,7 +56,6 @@ def create_fhir_patient(patient_name, patient_identifier):
 
 def _local_create_fhir_patient(patient_name, patient_identifier):
     _ensure_dirs()
-    # Use the patient_identifier as the local FHIR ID
     fhir_id = str(patient_identifier)
     patient_data = {
         "resourceType": "Patient",
@@ -185,10 +176,19 @@ def upload_document_reference(patient_fhir_id, file_path, description="Uploaded 
         return 500, str(e)
 
 
-def _local_upload_document_reference(patient_fhir_id, file_path, description):
+def _local_upload_document_reference(patient_fhir_id, file_url_or_path, description):
+    """
+    Accepts either a Cloudinary URL or a local file path.
+    Stores the URL reference in the local FHIR index — no file copying needed.
+    """
     _ensure_dirs()
 
-    file_name = os.path.basename(file_path)
+    import time
+
+    # Determine if it's a URL or local path
+    is_url = file_url_or_path.startswith("http://") or file_url_or_path.startswith("https://")
+
+    file_name = file_url_or_path.split("/")[-1].split("?")[0]  # handles URLs and paths
     ext = file_name.split(".")[-1].lower()
 
     content_type_map = {
@@ -200,18 +200,18 @@ def _local_upload_document_reference(patient_fhir_id, file_path, description):
     }
     content_type = content_type_map.get(ext, "application/octet-stream")
 
-    # ✅ Save actual file into media/fhir_downloads/
-    download_dir = os.path.join(settings.MEDIA_ROOT, "fhir_downloads")
-    os.makedirs(download_dir, exist_ok=True)
-    dest_path = os.path.join(download_dir, file_name)
-    with open(file_path, "rb") as src, open(dest_path, "wb") as dst:
-        dst.write(src.read())
+    if is_url:
+        # It's already on Cloudinary — just store the URL directly
+        file_url = file_url_or_path
+    else:
+        # It's a local path — copy it to fhir_downloads
+        download_dir = os.path.join(settings.MEDIA_ROOT, "fhir_downloads") if settings.MEDIA_ROOT else "/tmp/fhir_downloads"
+        os.makedirs(download_dir, exist_ok=True)
+        dest_path = os.path.join(download_dir, file_name)
+        with open(file_url_or_path, "rb") as src, open(dest_path, "wb") as dst:
+            dst.write(src.read())
+        file_url = (settings.MEDIA_URL or "/") + "fhir_downloads/" + file_name
 
-    # ✅ Build file URL so doctor can view/download it
-    file_url = settings.MEDIA_URL + "fhir_downloads/" + file_name
-
-    # ✅ Generate a doc ID
-    import time
     doc_id = f"{patient_fhir_id}_{int(time.time())}"
 
     doc_data = {
@@ -227,18 +227,16 @@ def _local_upload_document_reference(patient_fhir_id, file_path, description):
                 "attachment": {
                     "contentType": content_type,
                     "title": file_name,
-                    "url": file_url   # ✅ actual viewable URL
+                    "url": file_url
                 }
             }
         ]
     }
 
-    # Save document JSON
     doc_file = os.path.join(LOCAL_DOCUMENTS_DIR, f"{doc_id}.json")
     with open(doc_file, "w") as f:
         json.dump(doc_data, f, indent=2)
 
-    # Update index
     index = _load_index()
     pid = str(patient_fhir_id)
     if pid not in index:
@@ -253,15 +251,10 @@ def _local_upload_document_reference(patient_fhir_id, file_path, description):
 # SAVE FHIR ATTACHMENT LOCALLY (helper)
 # ============================================================
 def save_fhir_attachment_locally(entry):
-    """
-    Takes one DocumentReference entry, extracts base64 attachment,
-    saves it into media/fhir_downloads/ and returns the file URL.
-    """
     try:
         attachment = entry["resource"]["content"][0]["attachment"]
         title = attachment.get("title", "report_file")
 
-        # If it already has a URL, return it directly
         if attachment.get("url"):
             return attachment["url"]
 
@@ -270,14 +263,14 @@ def save_fhir_attachment_locally(entry):
             return None
 
         decoded_file = base64.b64decode(encoded_data)
-        folder_path = os.path.join(settings.MEDIA_ROOT, "fhir_downloads")
+        folder_path = os.path.join(settings.MEDIA_ROOT, "fhir_downloads") if settings.MEDIA_ROOT else "/tmp/fhir_downloads"
         os.makedirs(folder_path, exist_ok=True)
 
         file_path = os.path.join(folder_path, title)
         with open(file_path, "wb") as f:
             f.write(decoded_file)
 
-        return settings.MEDIA_URL + "fhir_downloads/" + title
+        return (settings.MEDIA_URL or "/") + "fhir_downloads/" + title
 
     except Exception as e:
         print(f"[FHIR] save_fhir_attachment_locally failed: {e}")
