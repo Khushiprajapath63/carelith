@@ -110,8 +110,10 @@ class Report(models.Model):
 
     title = models.CharField(max_length=500)
 
+    # ✅ FIXED HERE
     file = models.FileField(
         upload_to="reports/",
+        max_length=255,   # increased from default 100
         null=True,
         blank=True
     )
@@ -123,7 +125,6 @@ class Report(models.Model):
     )
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
-
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -215,7 +216,8 @@ class AuditLog(models.Model):
         related_name="audit_logs"
     )
 
-    action = models.CharField(max_length=100)
+    # ✅ FIXED HERE (safer)
+    action = models.CharField(max_length=255)
 
     ip_address = models.GenericIPAddressField(
         null=True,
