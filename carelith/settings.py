@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'notifications',
     'fhir',
     'cloudinary',
+    'cloudinary_storage',
     'receptionist',
 ]
 
@@ -93,13 +94,12 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary.storage.MediaCloudinaryStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/redirect/'
