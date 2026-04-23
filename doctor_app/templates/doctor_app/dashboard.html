@@ -491,12 +491,17 @@
                         {% endif %}
                     </td>
                     <td style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <a href="{% url 'doctor_app:request_patient_access' appt.patient.id %}" class="btn-action btn-otp">🔐 OTP</a>
-                        {% if appt.patient.patientaccess_set.last %}
-                            <a href="{% url 'doctor_app:verify_patient_otp' appt.patient.patientaccess_set.last.id %}" class="btn-action btn-verify">✓ Verify</a>
-                        {% endif %}
-                        <a href="{% url 'doctor_app:view_patient_fhir_records' appt.patient.id %}" class="btn-action btn-fhir">📋 FHIR</a>
-                    </td>
+    <a href="{% url 'doctor_app:request_patient_access' appt.patient.id %}" class="btn-action btn-otp">🔐 OTP</a>
+
+    {% if appt.patient.patientaccess_set.last %}
+        <a href="{% url 'doctor_app:verify_patient_otp' appt.patient.patientaccess_set.last.id %}" class="btn-action btn-verify">✓ Verify</a>
+    {% endif %}
+
+    <a href="{% url 'doctor_app:view_patient_fhir_records' appt.patient.id %}" class="btn-action btn-fhir">📋 FHIR</a>
+
+    <!-- ✅ ADD THIS LINE -->
+    <a href="{% url 'doctor_app:write_prescription' appt.patient.id %}" class="btn-action btn-explain">💊 Prescription</a>
+</td>
                 </tr>
             {% empty %}
                 <tr><td colspan="5">
@@ -572,7 +577,7 @@
             <tbody>
             {% for pres in prescriptions %}
                 <tr>
-                    <td><div class="patient-name">{{ pres.encounter.patient.user.username }}</div></td>
+                    <td><div class="patient-name">{{ pres.patient.user.username }}</div></td>
                     <td style="color:var(--text-secondary);">{{ pres.medicines|linebreaksbr }}</td>
                 </tr>
             {% empty %}
