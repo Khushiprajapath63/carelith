@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from doctor_app.models import Doctor
 from patients.models import Patient
 from receptionist.models import Receptionist
+from laboratory.models import Laboratory
 from django.http import HttpResponse
 
 def home(request):
@@ -22,6 +23,9 @@ def post_login_redirect(request):
 
     if Receptionist.objects.filter(user=user).exists():
         return redirect('/receptionist/dashboard/')
+
+    if Laboratory.objects.filter(user=user).exists():
+        return redirect('/lab/dashboard/')
 
     # fallback safety
     return redirect('/accounts/login/')

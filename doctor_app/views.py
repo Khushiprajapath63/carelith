@@ -222,7 +222,45 @@ def verify_patient_otp(request, access_id):
     return render(request, "doctor_app/verify_otp.html", {
         "access": access
     })
+    
+@login_required
+def write_prescription(request, patient_id):
+    doctor = get_object_or_404(Doctor, user=request.user)
+    patient = get_object_or_404(Patient, id=patient_id)
 
+    access = PatientAccess.objects.filter(
+        doctor=doctor,
+        patient=patient,
+        is_verified=True,
+        expires_at__gt=timezone.now()
+    ).first()
+
+    if not access:
+        messages.error(request, "OTP verification required.")
+        return redirect("doctor_app:doctor_dashboard")
+
+    if request.method == "POST":
+        medicines = request.POST.get("medicines")
+        notes = request.POST.get("notes", "")
+
+        if medicines:
+            from records.models import Prescription
+            Prescription.objects.create(
+                patient=patient,
+                doctor=doctor,
+                hospital=doctor.hospital,
+                medicines=medicines,
+                notes=notes,
+            )
+            messages.success(request, f"Prescription written for {patient.user.username}!")
+            return redirect("doctor_app:doctor_dashboard")
+        else:
+            messages.error(request, "Medicines field is required.")
+
+    return render(request, "doctor_app/write_prescription.html", {
+        "doctor": doctor,
+        "patient": patient,
+    })
 
 # ============================================================
 # VIEW FHIR RECORDS
