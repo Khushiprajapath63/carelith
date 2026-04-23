@@ -28,7 +28,7 @@ class Patient(models.Model):
     fhir_patient_id = models.CharField(max_length=200, unique=True, null=True, blank=True)
 
     gender = models.CharField(
-        max_length=1,
+        max_length=10,
         choices=GENDER_CHOICES,
         default='M'
     )
