@@ -17,9 +17,6 @@ from records.models import Encounter
 from access_control.models import PatientAccess
 
 
-# ============================================================
-# RECEPTIONIST DASHBOARD
-# ============================================================
 @login_required
 def receptionist_dashboard(request):
     try:
@@ -44,9 +41,6 @@ def receptionist_dashboard(request):
     })
 
 
-# ============================================================
-# REGISTER PATIENT
-# ============================================================
 @login_required
 def register_patient(request):
     try:
@@ -91,4 +85,96 @@ def register_patient(request):
     })
 
 
-# =============
+@login_required
+def book_appointment(request):
+    try:
+        receptionist = Receptionist.objects.get(user=request.user)
+    except Receptionist.DoesNotExist:
+        return redirect('/accounts/login/')
+
+    doctors = Doctor.objects.all().select_related('user', 'hospital')
+    patients = Patient.objects.all().select_related('user')
+
+    if request.method == 'POST':
+        doctor_id = request.POST.get('doctor')
+        patient_id = request.POST.get('patient')
+        reason = request.POST.get('reason', 'General Consultation')
+        date = request.POST.get('date')
+
+        doctor = get_object_or_404(Doctor, id=doctor_id)
+        patient = get_object_or_404(Patient, id=patient_id)
+
+        Encounter.objects.create(
+            doctor=doctor,
+            patient=patient,
+            reason=reason,
+            started_at=date if date else timezone.now(),
+            hospital=doctor.hospital,
+        )
+
+        messages.success(request, f"Appointment booked for {patient.user.username} with Dr. {doctor.user.username}!")
+        return redirect('receptionist:receptionist_dashboard')
+
+    return render(request, 'receptionist/book_appointment.html', {
+        'doctors': doctors,
+        'patients': patients,
+        'receptionist': receptionist,
+    })
+
+
+@login_required
+def generate_otp(request, patient_id):
+    try:
+        receptionist = Receptionist.objects.get(user=request.user)
+    except Receptionist.DoesNotExist:
+        return redirect('/accounts/login/')
+
+    patient = get_object_or_404(Patient, id=patient_id)
+    doctors = Doctor.objects.all().select_related('user')
+
+    if request.method == 'POST':
+        doctor_id = request.POST.get('doctor')
+        doctor = get_object_or_404(Doctor, id=doctor_id)
+
+        otp = str(random.randint(100000, 999999))
+        expiry_time = timezone.now() + timedelta(minutes=10)
+
+        PatientAccess.objects.filter(doctor=doctor, patient=patient).delete()
+
+        PatientAccess.objects.create(
+            doctor=doctor,
+            patient=patient,
+            otp=otp,
+            is_verified=False,
+            expires_at=expiry_time,
+        )
+
+        patient_email = patient.user.email
+        if patient_email:
+            send_mail(
+                subject='Your Carelith Access OTP',
+                message=f'''Hello {patient.user.username},
+
+Your OTP for doctor access is: {otp}
+
+This OTP is valid for 10 minutes.
+Doctor: Dr. {doctor.user.username}
+
+Do not share this OTP with anyone.
+
+— Carelith Team''',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[patient_email],
+                fail_silently=False,
+            )
+            messages.success(request, f"OTP sent to {patient_email} — Valid for 10 minutes.")
+        else:
+            messages.warning(request, f"OTP generated: {otp} — Patient has no email on file!")
+
+        return redirect('receptionist:receptionist_dashboard')
+
+    return render(request, 'receptionist/generate_otp.html', {
+        'patient': patient,
+        'doctors': doctors,
+        'receptionist': receptionist,
+    })
